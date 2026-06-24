@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#7A2E52">
-<title>Dulcero · Gestión de pedidos</title>
+<title>FelSol · Gestión de pedidos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -402,7 +402,7 @@
   <div class="auth-card">
     <div class="auth-brand">
       <div class="brand-mark" aria-hidden="true"></div>
-      <div><div class="brand-name">Dulcero</div><div class="brand-sub">Tus pedidos, ordenados</div></div>
+      <div><div class="brand-name">FelSol</div><div class="brand-sub">Gestor de Pedidos</div></div>
     </div>
 
     <!-- Iniciar sesión -->
@@ -431,8 +431,8 @@
   <div class="top-inner" style="flex-wrap:wrap">
     <div class="brand-mark" aria-hidden="true"></div>
     <div>
-      <div class="brand-name">Dulcero</div>
-      <div class="brand-sub">Tus pedidos, ordenados</div>
+      <div class="brand-name">FelSol</div>
+      <div class="brand-sub">Gestor de Pedidos</div>
     </div>
     <div class="top-spacer"></div>
     <span class="sync-status" id="syncStatus" title="Estado de guardado"></span>
@@ -780,7 +780,7 @@
 
 <script>
 /* =========================================================================
-   Dulcero — gestión de pedidos para venta de dulces
+   FelSol — gestión de pedidos
    Guarda los datos de forma privada y persistente. Sin servidores externos.
    ========================================================================= */
 
@@ -1691,7 +1691,7 @@ function generarReporte(){
 
   const generadoEl = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
   const html = `<!DOCTYPE html><html lang="es-AR"><head><meta charset="UTF-8">
-  <title>Resumen ${mesLabel(clave)} · Dulcero</title>
+  <title>Resumen ${mesLabel(clave)} · FelSol</title>
   <style>
     @page{margin:18mm 16mm}
     *{box-sizing:border-box}
@@ -1722,11 +1722,11 @@ function generarReporte(){
     @media print{.tag,.rc.green,.rc.plum{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
   </style></head><body>
     <div class="head">
-      <div class="brand">Dulcero<small>Resumen mensual</small></div>
+      <div class="brand">FelSol<small>Resumen mensual</small></div>
       <div class="right"><b>${mesLabel(clave)}</b>Generado el ${generadoEl}</div>
     </div>
     ${cuerpo}
-    <div class="pie">Reporte generado con Dulcero · ${generadoEl}</div>
+    <div class="pie">Reporte generado con FelSol · ${generadoEl}</div>
   </body></html>`;
 
   // Imprimimos en un iframe oculto (sin ventanas emergentes), el usuario elige "Guardar como PDF"
