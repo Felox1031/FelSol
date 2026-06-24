@@ -44,6 +44,8 @@
   .auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
   .auth-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 16px}
   .auth-err{color:var(--danger);font-size:.84rem;font-weight:600;min-height:1.1em;margin:2px 0 12px}
+  .auth-check{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);font-weight:500;margin:10px 0 4px;cursor:pointer}
+  .auth-check input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
   .auth-btn{width:100%;justify-content:center;padding:13px;font-size:.96rem}
   .auth-link{display:block;width:100%;background:none;border:none;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit;text-align:center}
   .auth-link:hover{color:var(--brand)}
@@ -266,6 +268,7 @@
     <div id="loginPanel">
       <h2 class="auth-title">Ingresá tu contraseña</h2>
       <div class="field"><label for="lg-pass">Contraseña</label><input id="lg-pass" type="password" autocomplete="current-password"></div>
+      <label class="auth-check"><input type="checkbox" id="lg-recordar" checked> Mantener la sesión iniciada en este dispositivo</label>
       <p class="auth-err" id="lg-err"></p>
       <button class="btn-primary auth-btn" id="lg-entrar">Entrar</button>
       <button class="auth-link" id="lg-reset">Olvidé mi contraseña / reconfigurar</button>
@@ -461,7 +464,37 @@ function b64Bytes(b64){ const bin=atob(b64); const a=new Uint8Array(bin.length);
 async function derivarClave(pass, salt){
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:150000, hash:'SHA-256'},
-    base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+    base, {name:'AES-GCM', length:256}, true, ['encrypt','decrypt']);
+}
+
+// ---- Recordar sesión: guarda la clave en el dispositivo para no pedir la contraseña en cada recarga ----
+const SESS_KEY = 'dulcero:sesion';
+function localSess(s){ try{ return s ? sessionStorage : localStorage; }catch(e){ return null; } }
+async function guardarSesion(persistente){
+  if(!appKey) return;
+  try{
+    const raw = bytesB64(new Uint8Array(await crypto.subtle.exportKey('raw', appKey)));
+    limpiarSesion();
+    if(persistente && tieneLocal) localStorage.setItem(SESS_KEY, raw);
+    else { try{ sessionStorage.setItem(SESS_KEY, raw); }catch(e){} }
+  }catch(e){}
+}
+function limpiarSesion(){
+  try{ sessionStorage.removeItem(SESS_KEY); }catch(e){}
+  try{ if(tieneLocal) localStorage.removeItem(SESS_KEY); }catch(e){}
+}
+async function restaurarSesion(){
+  if(!cryptoOk) return false;
+  let raw = null;
+  try{ raw = sessionStorage.getItem(SESS_KEY); }catch(e){}
+  if(!raw && tieneLocal){ try{ raw = localStorage.getItem(SESS_KEY); }catch(e){} }
+  if(!raw) return false;
+  const vault = vaultRaw(); if(!vault) return false;
+  try{
+    const key = await crypto.subtle.importKey('raw', b64Bytes(raw), 'AES-GCM', true, ['encrypt','decrypt']);
+    const conf = await descifrar(key, vault.gh);   // valida que la clave sirve para este vault
+    appKey = key; gh = conf; return true;
+  }catch(e){ limpiarSesion(); return false; }
 }
 async function cifrar(key, obj){
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -515,8 +548,12 @@ function appRepoURL(){
 }
 // Lee el vault público SIN token (lo necesita un dispositivo nuevo para arrancar)
 async function leerVaultRemoto(){
+  const ar = appRepoURL();
+  const url = ar
+    ? `https://${ar.owner}.github.io/${ar.repo}/vault.json?cb=${Date.now()}`   // URL absoluta y confiable
+    : 'vault.json?cb=' + Date.now();
   try{
-    const r = await fetch('vault.json?cb=' + Date.now(), {cache:'no-store'});
+    const r = await fetch(url, {cache:'no-store'});
     if(!r.ok) return null;
     const v = await r.json();
     return (v && v.salt && v.gh) ? v : null;
@@ -525,7 +562,8 @@ async function leerVaultRemoto(){
 // Sube el vault cifrado al repo público de la app (requiere token con escritura en ese repo)
 async function escribirVaultRemoto(){
   const ar = appRepoURL(); const vault = vaultRaw();
-  if(!ar || !vault || !ghOk()) return;
+  if(!ar) return {ok:false, reason:'nopages'};   // no es github.io: no se puede publicar el acceso
+  if(!vault || !ghOk()) return {ok:false, reason:'noconfig'};
   const url = `https://api.github.com/repos/${ar.owner}/${ar.repo}/contents/vault.json`;
   try{
     if(!vaultSha){
@@ -540,8 +578,11 @@ async function escribirVaultRemoto(){
       if(g.ok){ vaultSha = (await g.json()).sha; body.sha = vaultSha; }
       r = await fetch(url, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
     }
-    if(r.ok){ const j = await r.json(); vaultSha = (j.content && j.content.sha) || vaultSha; }
-  }catch(e){}
+    if(r.status === 401 || r.status === 403 || r.status === 404) return {ok:false, reason:'permiso'};
+    if(!r.ok) return {ok:false, reason:'http'};
+    const j = await r.json(); vaultSha = (j.content && j.content.sha) || vaultSha;
+    return {ok:true};
+  }catch(e){ return {ok:false, reason:'red'}; }
 }
 
 // ---- Caché de pedidos (también cifrada con la misma clave) ----
@@ -1040,11 +1081,15 @@ async function conectarGh(){
     if(res.nuevo){ pedidos = localPrev; await ghPushNow(); }                 // crea el archivo con lo que tengas
     else if(pedidos.length === 0 && localPrev.length > 0){ pedidos = localPrev; await ghPushNow(); }
     await actualizarGhEnVault(c);     // guarda el token cifrado
-    await escribirVaultRemoto();      // lo publica (cifrado) para entrar desde otros dispositivos solo con contraseña
+    const pub = await escribirVaultRemoto();  // publica el acceso para otros dispositivos
     await escribirCacheCifrada();
     render(); setSync('ok');
     $('#gh-estado').textContent = 'Conectado ✓';
-    toast('Conectado a GitHub ✓'); cerrarGh();
+    cerrarGh();
+    if(pub.ok) toast('Conectado ✓ — ya podés entrar desde otros dispositivos con tu contraseña');
+    else if(pub.reason === 'permiso') toast('Conectado, pero el token no puede escribir en el repo de la app: agregale ese repo');
+    else if(pub.reason === 'nopages') toast('Conectado (el acceso compartido solo se publica desde GitHub Pages)');
+    else toast('Conectado, pero no se pudo publicar el acceso compartido');
   } else {
     gh = prev; setSync(ghOk()?'ok':'off');
     $('#gh-estado').textContent = res.reason === 'auth'
@@ -1076,8 +1121,10 @@ async function desbloquear(){
 async function hacerLogin(){
   if(!cryptoOk){ $('#lg-err').textContent = 'Este navegador necesita HTTPS para el cifrado.'; return; }
   const ok = await abrirVault($('#lg-pass').value);
-  if(ok){ pedidos = await cargar(); await desbloquear(); }
-  else { $('#lg-err').textContent = 'Contraseña incorrecta.'; }
+  if(ok){
+    await guardarSesion($('#lg-recordar').checked);
+    pedidos = await cargar(); await desbloquear();
+  } else { $('#lg-err').textContent = 'Contraseña incorrecta.'; }
 }
 
 async function hacerSetup(){
@@ -1087,6 +1134,7 @@ async function hacerSetup(){
   if(p1.length < 8){ err.textContent = 'Usá una contraseña de al menos 8 caracteres (es lo que protege tu acceso).'; return; }
   if(p1 !== p2){ err.textContent = 'Las contraseñas no coinciden.'; return; }
   await crearVault(p1, {});           // sin GitHub por ahora: solo contraseña
+  await guardarSesion(true);          // queda la sesión iniciada
   pedidos = [];
   await escribirCacheCifrada();
   await desbloquear();
@@ -1094,6 +1142,7 @@ async function hacerSetup(){
 }
 
 function cerrarSesion(){
+  limpiarSesion();
   appKey = null; gh = null; ghSha = null; pedidos = [];
   render(); $('#menu').classList.remove('open');
   panelLogin(); mostrarAuth();
@@ -1103,7 +1152,7 @@ async function reconfigurar(){
     mensaje:'Esto borra la conexión y la contraseña de ESTE dispositivo. Tus pedidos en GitHub no se tocan: los recuperás al volver a conectar. ¿Seguir?',
     ok:'Reconfigurar', peligro:true });
   if(!ok) return;
-  borrarVault(); pedidos = [];
+  limpiarSesion(); borrarVault(); pedidos = [];
   panelSetup(); mostrarAuth();
 }
 
@@ -1223,10 +1272,16 @@ $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJ
     $('#lg-err').textContent = 'Abrí la app por HTTPS (GitHub Pages) para poder usar el cifrado.';
     $('#su-err').textContent = 'Abrí la app por HTTPS (GitHub Pages) para poder usar el cifrado.';
   }
-  // Dispositivo nuevo: si no hay acceso local pero existe el vault publicado, lo usamos (entrás solo con contraseña)
+  // Dispositivo nuevo: si no hay acceso local pero existe el vault publicado, lo usamos
   if(!hayVault()){
     const remoto = await leerVaultRemoto();
     if(remoto) setVaultRaw(remoto);
+  }
+  // Si hay una sesión recordada, entramos directo sin pedir la contraseña
+  if(hayVault() && await restaurarSesion()){
+    pedidos = await cargar();
+    await desbloquear();
+    return;
   }
   if(hayVault()) panelLogin(); else panelSetup();
   mostrarAuth();
