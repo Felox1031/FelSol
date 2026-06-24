@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#7A2E52">
-<title>Dulcero · Gestión de pedidos</title>
+<title>FelSol · Gestión de pedidos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -261,7 +261,7 @@
   <div class="auth-card">
     <div class="auth-brand">
       <div class="brand-mark" aria-hidden="true"></div>
-      <div><div class="brand-name">Dulcero</div><div class="brand-sub">Tus pedidos, ordenados</div></div>
+      <div><div class="brand-name">FelSol</div><div class="brand-sub">Tus pedidos, ordenados</div></div>
     </div>
 
     <!-- Iniciar sesión -->
@@ -290,7 +290,7 @@
   <div class="top-inner">
     <div class="brand-mark" aria-hidden="true"></div>
     <div>
-      <div class="brand-name">Dulcero</div>
+      <div class="brand-name">FelSol</div>
       <div class="brand-sub">Tus pedidos, ordenados</div>
     </div>
     <div class="top-spacer"></div>
@@ -408,7 +408,7 @@
     <p class="mes-hint">Conectá tu repositorio privado para usar la app en varios dispositivos. Para que en los demás dispositivos alcance solo la contraseña, el token tiene que tener permiso <b>Contents (lectura y escritura)</b> sobre <b>los dos repos</b>: el privado de datos y el público de la app. Se guarda cifrado.</p>
     <div class="field-row">
       <div class="field"><label for="gh-owner">Usuario de GitHub</label><input id="gh-owner" type="text" placeholder="tu-usuario" autocomplete="off"></div>
-      <div class="field"><label for="gh-repo">Repositorio</label><input id="gh-repo" type="text" placeholder="dulcero-datos" autocomplete="off"></div>
+      <div class="field"><label for="gh-repo">Repositorio</label><input id="gh-repo" type="text" placeholder="FelSol-datos" autocomplete="off"></div>
     </div>
     <div class="field-row">
       <div class="field"><label for="gh-path">Archivo</label><input id="gh-path" type="text" placeholder="pedidos.json" autocomplete="off"></div>
@@ -439,13 +439,13 @@
 
 <script>
 /* =========================================================================
-   Dulcero — gestión de pedidos para venta de dulces
+   FelSol — gestión de pedidos para venta de dulces
    Guarda los datos de forma privada y persistente. Sin servidores externos.
    ========================================================================= */
 
 // ====================== Almacenamiento + cifrado + sincronización ======================
-const VAULT_KEY = 'dulcero:vault';   // { v, salt, gh:{iv,ct} }  -> token de GitHub cifrado
-const CACHE_KEY = 'dulcero:cache';   // { iv, ct }               -> pedidos cifrados
+const VAULT_KEY = 'FelSol:vault';   // { v, salt, gh:{iv,ct} }  -> token de GitHub cifrado
+const CACHE_KEY = 'FelSol:cache';   // { iv, ct }               -> pedidos cifrados
 
 function localOk(){ try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); return true; }catch(e){ return false; } }
 const tieneLocal = localOk();
@@ -468,7 +468,7 @@ async function derivarClave(pass, salt){
 }
 
 // ---- Recordar sesión: guarda la clave en el dispositivo para no pedir la contraseña en cada recarga ----
-const SESS_KEY = 'dulcero:sesion';
+const SESS_KEY = 'FelSol:sesion';
 function localSess(s){ try{ return s ? sessionStorage : localStorage; }catch(e){ return null; } }
 async function guardarSesion(persistente){
   if(!appKey) return;
@@ -538,7 +538,7 @@ async function actualizarGhEnVault(conf){
 function borrarVault(){ try{ if(tieneLocal){ localStorage.removeItem(VAULT_KEY); localStorage.removeItem(CACHE_KEY); } }catch(e){} _vaultMem=null; _memEnc=''; gh=null; appKey=null; ghSha=null; vaultSha=null; }
 
 // ---- Acceso compartido entre dispositivos: vault.json en el repo público de la app ----
-// Deriva owner/repo del propio dominio github.io (ej: usuario.github.io/dulcero/)
+// Deriva owner/repo del propio dominio github.io (ej: usuario.github.io/FelSol/)
 function appRepoURL(){
   const m = location.hostname.match(/^([^.]+)\.github\.io$/);
   if(!m) return null;
@@ -1000,7 +1000,7 @@ function generarReporte(){
 
   const generadoEl = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
   const html = `<!DOCTYPE html><html lang="es-AR"><head><meta charset="UTF-8">
-  <title>Resumen ${mesLabel(clave)} · Dulcero</title>
+  <title>Resumen ${mesLabel(clave)} · FelSol</title>
   <style>
     @page{margin:18mm 16mm}
     *{box-sizing:border-box}
@@ -1031,11 +1031,11 @@ function generarReporte(){
     @media print{.tag,.rc.green,.rc.plum{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
   </style></head><body>
     <div class="head">
-      <div class="brand">Dulcero<small>Resumen mensual</small></div>
+      <div class="brand">FelSol<small>Resumen mensual</small></div>
       <div class="right"><b>${mesLabel(clave)}</b>Generado el ${generadoEl}</div>
     </div>
     ${cuerpo}
-    <div class="pie">Reporte generado con Dulcero · ${generadoEl}</div>
+    <div class="pie">Reporte generado con FelSol · ${generadoEl}</div>
   </body></html>`;
 
   // Imprimimos en un iframe oculto (sin ventanas emergentes), el usuario elige "Guardar como PDF"
