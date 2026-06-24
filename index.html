@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7A2E52">
+<title>Dulcero · Gestión de pedidos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6F1;
+    --surface:#FFFFFF;
+    --ink:#2C2228;
+    --muted:#9A8A92;
+    --line:#EFE5DE;
+    --brand:#7A2E52;
+    --brand-dark:#5E2240;
+    --brand-soft:#F6E8EF;
+    --amber:#B26A14;
+    --amber-soft:#FBEFDD;
+    --mint:#15795C;
+    --mint-soft:#E2F2EC;
+    --danger:#B23A3A;
+    --shadow:0 1px 2px rgba(44,34,40,.04), 0 8px 24px rgba(44,34,40,.06);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 64px}
+
+  /* Pantalla de acceso */
+  .auth{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:18px;overflow-y:auto}
+  .auth-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);width:100%;max-width:440px;padding:24px 22px}
+  .auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .auth-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 16px}
+  .auth-err{color:var(--danger);font-size:.84rem;font-weight:600;min-height:1.1em;margin:2px 0 12px}
+  .auth-btn{width:100%;justify-content:center;padding:13px;font-size:.96rem}
+  .auth-link{display:block;width:100%;background:none;border:none;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit;text-align:center}
+  .auth-link:hover{color:var(--brand)}
+
+  /* Header */
+  header.top{
+    position:sticky;top:0;z-index:5;
+    background:rgba(251,246,241,.86);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:14px 0 12px;margin-bottom:18px;
+  }
+  .top-inner{max-width:760px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px}
+  .brand-mark{
+    width:38px;height:38px;border-radius:11px;flex:0 0 auto;
+    background:var(--brand);position:relative;overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .brand-mark::after{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(135deg, rgba(255,255,255,.20) 0 5px, transparent 5px 10px);
+  }
+  .brand-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.18rem;letter-spacing:-.01em;line-height:1.1}
+  .brand-sub{font-size:.74rem;color:var(--muted);margin-top:1px}
+  .top-spacer{flex:1}
+  .icon-btn{
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    width:40px;height:40px;border-radius:11px;cursor:pointer;font-size:1.05rem;
+    display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .icon-btn:hover{border-color:var(--brand);color:var(--brand)}
+  .sync-status{font-size:.72rem;color:var(--mint);font-weight:600;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+  .sync-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
+  .sync-status[data-state="sync"]{color:var(--amber)}
+  .sync-status[data-state="err"]{color:var(--danger)}
+  .sync-status[data-state="local"],.sync-status[data-state="off"]{color:var(--muted)}
+  .sync-status[data-state="mem"]{color:var(--danger)}
+  @media(max-width:440px){ .sync-status{font-size:0;gap:0} .sync-status::before{width:9px;height:9px} }
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .stat{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 14px 16px;box-shadow:var(--shadow);
+  }
+  .stat .label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .stat .num{font-family:'Fraunces',serif;font-weight:600;font-size:1.55rem;letter-spacing:-.02em;margin-top:6px;line-height:1}
+  .stat.por-cobrar{background:var(--brand-soft);border-color:#EBD6E0}
+  .stat.por-cobrar .num{color:var(--brand)}
+  .stat.cobrado .num{color:var(--mint)}
+  .stat .count{font-size:.72rem;color:var(--muted);margin-top:7px}
+  @media(max-width:560px){
+    .stats{grid-template-columns:1fr 1fr}
+    .stat.por-cobrar{grid-column:1 / -1}
+    .stat.por-cobrar .num{font-size:1.9rem}
+  }
+
+  /* Toolbar */
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .btn-primary{
+    background:var(--brand);color:#fff;border:none;border-radius:12px;
+    padding:11px 16px;font-weight:600;font-size:.92rem;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;transition:.15s;box-shadow:var(--shadow);
+  }
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-primary .plus{font-size:1.15rem;line-height:1;margin-top:-1px}
+  .search{
+    flex:1;min-width:170px;border:1px solid var(--line);background:var(--surface);
+    border-radius:12px;padding:11px 13px;font-size:.92rem;color:var(--ink);font-family:inherit;
+  }
+  .search:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
+
+  .filters{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+  .chip{
+    border:1px solid var(--line);background:var(--surface);color:var(--muted);
+    padding:7px 13px;border-radius:999px;font-size:.84rem;font-weight:600;cursor:pointer;transition:.15s;
+  }
+  .chip:hover{color:var(--ink)}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .group-by{display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+  .gb-label{font-size:.78rem;color:var(--muted);font-weight:500}
+  .gb-btn{
+    border:1px solid var(--line);background:var(--surface);color:var(--muted);
+    padding:6px 11px;border-radius:999px;font-size:.82rem;font-weight:600;cursor:pointer;
+    font-family:inherit;transition:.15s;
+  }
+  .gb-btn:hover{color:var(--ink)}
+  .gb-btn.active{background:var(--brand-soft);color:var(--brand);border-color:#EBD6E0}
+  @media(max-width:480px){ .group-by{margin-left:0;width:100%;margin-top:2px} }
+
+  /* List */
+  .list{display:flex;flex-direction:column;gap:24px}
+  .day{display:flex;flex-direction:column;gap:11px}
+  .day-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:0 2px 2px}
+  .day-label{font-family:'Fraunces',serif;font-weight:600;font-size:1.04rem;letter-spacing:-.01em}
+  .day-sum{font-size:.78rem;color:var(--muted);text-align:right}
+  .day-pend{color:var(--brand);font-weight:600}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;box-shadow:var(--shadow);
+  }
+  .card.cobrado{opacity:.78}
+  .card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .cliente{font-weight:600;font-size:1.02rem;letter-spacing:-.01em}
+  .detalle{color:var(--muted);font-size:.9rem;margin-top:2px;word-break:break-word}
+  .monto{font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;letter-spacing:-.02em;white-space:nowrap}
+  .meta{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .badge{font-size:.72rem;font-weight:700;padding:4px 9px;border-radius:999px;letter-spacing:.02em}
+  .badge.pend{background:var(--amber-soft);color:var(--amber)}
+  .badge.cob{background:var(--mint-soft);color:var(--mint)}
+  .fecha{font-size:.78rem;color:var(--muted)}
+  .card-actions{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}
+  .act{
+    border:1px solid var(--line);background:var(--surface);border-radius:10px;
+    padding:7px 11px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--ink);transition:.15s;
+    display:inline-flex;align-items:center;gap:5px;text-decoration:none;
+  }
+  .act:hover{border-color:var(--brand);color:var(--brand)}
+  .act.cobrar{background:var(--mint);color:#fff;border-color:var(--mint)}
+  .act.cobrar:hover{background:#0f5e47;color:#fff}
+  .act.wa{background:var(--mint-soft);border-color:#C7E5D9;color:#0f6b4f}
+  .act.wa:hover{background:#d3ebe0;border-color:#bfe0d2;color:#0f6b4f}
+  .act.reabrir{color:var(--amber)}
+  .act.del:hover{border-color:var(--danger);color:var(--danger)}
+  .nota{margin-top:9px;font-size:.84rem;color:var(--ink);background:#FAF4EF;border-radius:10px;padding:8px 10px;border:1px solid var(--line)}
+
+  /* Empty */
+  .empty{text-align:center;padding:48px 20px;color:var(--muted)}
+  .empty .emoji{font-size:2.2rem}
+  .empty h3{font-family:'Fraunces',serif;color:var(--ink);font-weight:600;margin:12px 0 4px;font-size:1.15rem}
+  .empty p{font-size:.9rem;margin:0}
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(44,34,40,.42);z-index:20;
+    display:none;align-items:flex-end;justify-content:center;
+  }
+  .overlay.open{display:flex}
+  .sheet{
+    background:var(--surface);width:100%;max-width:520px;border-radius:22px 22px 0 0;
+    padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;
+    box-shadow:0 -10px 40px rgba(44,34,40,.18);
+  }
+  @media(min-width:560px){
+    .overlay{align-items:center}
+    .sheet{border-radius:22px}
+  }
+  .sheet h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.25rem;margin:0 0 16px;letter-spacing:-.01em}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .field label .opt{color:var(--muted);font-weight:500}
+  .field input, .field textarea{
+    width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;
+    font-size:.95rem;font-family:inherit;color:var(--ink);background:var(--bg);
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
+  .field textarea{resize:vertical;min-height:60px}
+  .select-mes{
+    width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;
+    font-size:.95rem;font-family:inherit;color:var(--ink);background:var(--bg);
+  }
+  .select-mes:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
+  .mes-hint{font-size:.8rem;color:var(--muted);margin:-4px 0 16px;line-height:1.45}
+  .gh-estado{font-size:.82rem;font-weight:600;color:var(--muted);margin:2px 0 16px}
+  .field-row{display:flex;gap:12px}
+  .field-row .field{flex:1}
+  .seg{display:flex;gap:8px}
+  .seg button{
+    flex:1;border:1px solid var(--line);background:var(--bg);border-radius:11px;padding:10px;
+    font-weight:600;font-size:.88rem;cursor:pointer;color:var(--muted);font-family:inherit;transition:.15s;
+  }
+  .seg button.on-pend{background:var(--amber-soft);color:var(--amber);border-color:#EAD8BD}
+  .seg button.on-cob{background:var(--mint-soft);color:var(--mint);border-color:#C7E5D9}
+  .sheet-actions{display:flex;gap:10px;margin-top:8px}
+  .sheet-actions .btn-primary{flex:1;justify-content:center;padding:13px}
+  .btn-ghost{
+    flex:0 0 auto;background:none;border:1px solid var(--line);border-radius:12px;
+    padding:13px 18px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit;
+  }
+  .btn-danger{background:var(--danger)}
+  .btn-danger:hover{background:#922f2f}
+  .cf-msg{color:#6b5d63;font-size:.93rem;margin:-6px 0 18px;line-height:1.5}
+  .err{color:var(--danger);font-size:.8rem;margin-top:6px;display:none}
+
+  /* Menu de respaldo */
+  .menu{
+    position:absolute;right:16px;top:62px;z-index:15;background:var(--surface);
+    border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:6px;display:none;min-width:210px;
+  }
+  .menu.open{display:block}
+  .menu button{
+    display:flex;width:100%;text-align:left;background:none;border:none;
+    padding:10px 11px;border-radius:9px;font-size:.88rem;cursor:pointer;color:var(--ink);
+    font-family:inherit;gap:9px;align-items:center;
+  }
+  .menu button:hover{background:var(--bg)}
+  .menu .sep{height:1px;background:var(--line);margin:4px 6px}
+  .menu small{display:block;color:var(--muted);padding:6px 11px 2px;font-size:.72rem}
+
+  /* Toast */
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:.86rem;
+    font-weight:500;opacity:0;transition:.25s;z-index:40;pointer-events:none;box-shadow:var(--shadow);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de acceso: cubre todo hasta que se ingresa la contraseña -->
+<div id="auth" class="auth">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div><div class="brand-name">Dulcero</div><div class="brand-sub">Tus pedidos, ordenados</div></div>
+    </div>
+
+    <!-- Iniciar sesión -->
+    <div id="loginPanel">
+      <h2 class="auth-title">Ingresá tu contraseña</h2>
+      <div class="field"><label for="lg-pass">Contraseña</label><input id="lg-pass" type="password" autocomplete="current-password"></div>
+      <p class="auth-err" id="lg-err"></p>
+      <button class="btn-primary auth-btn" id="lg-entrar">Entrar</button>
+      <button class="auth-link" id="lg-reset">Olvidé mi contraseña / reconfigurar</button>
+    </div>
+
+    <!-- Configuración inicial -->
+    <div id="setupPanel" hidden>
+      <h2 class="auth-title">Creá tu contraseña</h2>
+      <p class="mes-hint">Elegí una contraseña para entrar. Protege tus datos en este dispositivo. Después, si querés usar la app en el teléfono y la compu, conectás GitHub desde el menú.</p>
+      <div class="field"><label for="su-pass">Contraseña</label><input id="su-pass" type="password" autocomplete="new-password"></div>
+      <div class="field"><label for="su-pass2">Repetir contraseña</label><input id="su-pass2" type="password" autocomplete="new-password"></div>
+      <p class="auth-err" id="su-err"></p>
+      <button class="btn-primary auth-btn" id="su-crear">Crear y entrar</button>
+    </div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div>
+      <div class="brand-name">Dulcero</div>
+      <div class="brand-sub">Tus pedidos, ordenados</div>
+    </div>
+    <div class="top-spacer"></div>
+    <span class="sync-status" id="syncStatus" title="Estado de guardado"></span>
+    <button class="icon-btn" id="menuBtn" title="Datos y sincronización" aria-label="Menú">⋯</button>
+  </div>
+</header>
+
+<div class="menu" id="menu">
+  <small>Sincronización</small>
+  <button id="ghBtn">☁️ Conexión con GitHub</button>
+  <button id="ghPullBtn">🔄 Traer cambios</button>
+  <button id="logoutBtn">🔒 Cerrar sesión</button>
+  <div class="sep"></div>
+  <small>Reportes</small>
+  <button id="reporteBtn">🧾 Resumen mensual (PDF)</button>
+  <div class="sep"></div>
+  <small>Respaldo de tus datos</small>
+  <button id="exportJson">💾 Descargar respaldo (.json)</button>
+  <button id="exportCsv">📊 Exportar a Excel (.csv)</button>
+  <div class="sep"></div>
+  <button id="importBtn">📂 Importar respaldo (.json)</button>
+  <input type="file" id="importFile" accept=".json,application/json" hidden>
+</div>
+
+<!-- Sheet para elegir el mes del resumen -->
+<div class="overlay" id="overlayMes">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mesTitle" style="max-width:420px">
+    <h2 id="mesTitle">Resumen mensual</h2>
+    <div class="field">
+      <label for="f-mes">Elegí el mes</label>
+      <select id="f-mes" class="select-mes"></select>
+    </div>
+    <p class="mes-hint">Se arma con la fecha en que se realizó cada pedido. Vas a poder guardarlo como PDF desde el diálogo de impresión.</p>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelMes">Cancelar</button>
+      <button class="btn-primary" id="genMes" style="justify-content:center">Generar PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="stats" id="stats"></section>
+
+  <div class="toolbar">
+    <button class="btn-primary" id="newBtn"><span class="plus">+</span> Nuevo pedido</button>
+    <input class="search" id="search" type="text" placeholder="Buscar por cliente…" autocomplete="off">
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="chip active" data-f="todos">Todos</button>
+    <button class="chip" data-f="pendiente">Por cobrar</button>
+    <button class="chip" data-f="cobrado">Cobrados</button>
+    <span class="group-by" id="groupBy">
+      <span class="gb-label">Por día de:</span>
+      <button class="gb-btn active" data-g="pedido">Pedido</button>
+      <button class="gb-btn" data-g="entrega">Entrega</button>
+    </span>
+  </div>
+
+  <section class="list" id="list"></section>
+</div>
+
+<!-- Modal nuevo/editar -->
+<div class="overlay" id="overlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <h2 id="sheetTitle">Nuevo pedido</h2>
+    <div class="field">
+      <label for="f-cliente">Cliente</label>
+      <input id="f-cliente" type="text" placeholder="Nombre de quien lo pidió" autocomplete="off">
+      <div class="err" id="err-cliente">Poné el nombre del cliente.</div>
+    </div>
+    <div class="field">
+      <label for="f-detalle">¿Qué pidió?</label>
+      <input id="f-detalle" type="text" placeholder="Ej: 2 docenas de alfajores de maicena" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="f-tel">Teléfono / WhatsApp <span class="opt">(opcional)</span></label>
+      <input id="f-tel" type="tel" inputmode="tel" placeholder="Ej: 3815123456" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-monto">Monto a cobrar</label>
+        <input id="f-monto" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+        <div class="err" id="err-monto">Ingresá un monto válido.</div>
+      </div>
+      <div class="field">
+        <label for="f-fecha">Entrega <span class="opt">(opcional)</span></label>
+        <input id="f-fecha" type="date">
+      </div>
+    </div>
+    <div class="field">
+      <label>Estado</label>
+      <div class="seg" id="seg">
+        <button type="button" data-e="pendiente">Por cobrar</button>
+        <button type="button" data-e="cobrado">Cobrado</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-nota">Nota <span class="opt">(opcional)</span></label>
+      <textarea id="f-nota" placeholder="Seña, dirección, aclaraciones…"></textarea>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelBtn">Cancelar</button>
+      <button class="btn-primary" id="saveBtn" style="justify-content:center">Guardar pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet de conexión con GitHub -->
+<div class="overlay" id="overlayGh">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ghTitle" style="max-width:460px">
+    <h2 id="ghTitle">Conexión con GitHub</h2>
+    <p class="mes-hint">Conectá tu repositorio privado para usar la app en varios dispositivos. Usá un token fine-grained con permiso <b>Contents (lectura y escritura)</b> solo sobre ese repo. Se guarda cifrado en este dispositivo. Más adelante, si el token vence, lo renovás acá.</p>
+    <div class="field-row">
+      <div class="field"><label for="gh-owner">Usuario de GitHub</label><input id="gh-owner" type="text" placeholder="tu-usuario" autocomplete="off"></div>
+      <div class="field"><label for="gh-repo">Repositorio</label><input id="gh-repo" type="text" placeholder="dulcero-datos" autocomplete="off"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="gh-path">Archivo</label><input id="gh-path" type="text" placeholder="pedidos.json" autocomplete="off"></div>
+      <div class="field"><label for="gh-branch">Rama</label><input id="gh-branch" type="text" placeholder="main" autocomplete="off"></div>
+    </div>
+    <div class="field"><label for="gh-token">Token de acceso (PAT)</label><input id="gh-token" type="password" placeholder="github_pat_…" autocomplete="off"></div>
+    <p class="gh-estado" id="gh-estado">No conectado</p>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelGh">Cancelar</button>
+      <button class="btn-primary" id="conectarGh" style="justify-content:center">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmación propia (no depende del confirm() del navegador) -->
+<div class="overlay" id="overlayConfirm">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cf-title" style="max-width:400px">
+    <h2 id="cf-title">¿Confirmar?</h2>
+    <p id="cf-msg" class="cf-msg"></p>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cf-cancel">Cancelar</button>
+      <button class="btn-primary" id="cf-ok" style="justify-content:center">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   Dulcero — gestión de pedidos para venta de dulces
+   Guarda los datos de forma privada y persistente. Sin servidores externos.
+   ========================================================================= */
+
+// ====================== Almacenamiento + cifrado + sincronización ======================
+const VAULT_KEY = 'dulcero:vault';   // { v, salt, gh:{iv,ct} }  -> token de GitHub cifrado
+const CACHE_KEY = 'dulcero:cache';   // { iv, ct }               -> pedidos cifrados
+
+function localOk(){ try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); return true; }catch(e){ return false; } }
+const tieneLocal = localOk();
+const cryptoOk = !!(window.crypto && window.crypto.subtle);
+let _memEnc = '';     // respaldo en memoria si el navegador bloquea localStorage
+
+let gh = null;        // {owner, repo, path, branch, token}  (en memoria, ya descifrado)
+let ghSha = null;     // SHA del archivo en GitHub
+let pushPend = false; // hay cambios sin subir
+let pushT = null;     // temporizador para agrupar subidas
+let appKey = null;    // clave AES en memoria, derivada de la contraseña tras el login
+
+// ---- Cifrado con Web Crypto (PBKDF2 + AES-GCM) ----
+function bytesB64(bytes){ let s=''; bytes.forEach(b=>s+=String.fromCharCode(b)); return btoa(s); }
+function b64Bytes(b64){ const bin=atob(b64); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i); return a; }
+async function derivarClave(pass, salt){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:150000, hash:'SHA-256'},
+    base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function cifrar(key, obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, new TextEncoder().encode(JSON.stringify(obj)));
+  return { iv: bytesB64(iv), ct: bytesB64(new Uint8Array(ct)) };
+}
+async function descifrar(key, p){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv: b64Bytes(p.iv)}, key, b64Bytes(p.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+// ---- Vault: guarda el token de GitHub cifrado con la contraseña ----
+function vaultRaw(){ try{ const r = tieneLocal ? localStorage.getItem(VAULT_KEY) : null; return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+function hayVault(){ return !!vaultRaw(); }
+async function crearVault(pass, conf){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  appKey = await derivarClave(pass, salt);
+  const vault = { v:1, salt: bytesB64(salt), gh: await cifrar(appKey, conf) };
+  if(tieneLocal) localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+  gh = conf;
+}
+async function abrirVault(pass){
+  const vault = vaultRaw(); if(!vault) return false;
+  try{
+    const key = await derivarClave(pass, b64Bytes(vault.salt));
+    const conf = await descifrar(key, vault.gh);   // lanza error si la contraseña está mal
+    appKey = key; gh = conf; return true;
+  }catch(e){ return false; }
+}
+async function actualizarGhEnVault(conf){
+  if(!appKey) return;
+  const vault = vaultRaw(); if(!vault) return;
+  vault.gh = await cifrar(appKey, conf);
+  if(tieneLocal) localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+  gh = conf;
+}
+function borrarVault(){ try{ if(tieneLocal){ localStorage.removeItem(VAULT_KEY); localStorage.removeItem(CACHE_KEY); } }catch(e){} _memEnc=''; gh=null; appKey=null; ghSha=null; }
+
+// ---- Caché de pedidos (también cifrada con la misma clave) ----
+async function leerCacheCifrada(){
+  if(!appKey) return [];
+  try{
+    const raw = tieneLocal ? localStorage.getItem(CACHE_KEY) : _memEnc;
+    if(!raw) return [];
+    const arr = await descifrar(appKey, JSON.parse(raw));
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){ return []; }
+}
+async function escribirCacheCifrada(){
+  if(!appKey) return;
+  try{
+    const s = JSON.stringify(await cifrar(appKey, pedidos));
+    if(tieneLocal) localStorage.setItem(CACHE_KEY, s); else _memEnc = s;
+  }catch(e){}
+}
+
+function ghOk(){ return !!(gh && gh.owner && gh.repo && gh.token); }
+
+// Base64 seguro para textos con acentos y emojis
+function utf8B64(s){ return btoa(unescape(encodeURIComponent(s))); }
+function b64Utf8(b){ return decodeURIComponent(escape(atob(String(b).replace(/\s/g,'')))); }
+function ghHeaders(){ return {'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}; }
+function ghUrl(conRef){
+  const u = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${encodeURI(gh.path)}`;
+  return conRef ? `${u}?ref=${encodeURIComponent(gh.branch||'main')}` : u;
+}
+
+// Indicador de estado en el encabezado
+function setSync(state){
+  const el = $('#syncStatus'); if(!el) return;
+  let st, txt;
+  if(!ghOk()){ st = tieneLocal ? 'local' : 'mem'; txt = tieneLocal ? 'Guardado en este equipo' : 'Solo esta sesión'; }
+  else if(state==='sync'){ st='sync'; txt='Sincronizando…'; }
+  else if(state==='err'){ st='err'; txt='Error de GitHub'; }
+  else { st='ok'; txt='Sincronizado'; }
+  el.dataset.state = st; el.textContent = txt;
+}
+
+// Baja los datos desde GitHub (fuente de verdad entre dispositivos)
+async function ghPull(){
+  if(!ghOk()) return {ok:false, reason:'noconfig'};
+  setSync('sync');
+  try{
+    const r = await fetch(ghUrl(true), {headers: ghHeaders(), cache:'no-store'});
+    if(r.status === 404){ ghSha = null; setSync('ok'); return {ok:true, nuevo:true}; }
+    if(r.status === 401 || r.status === 403){ setSync('err'); return {ok:false, reason:'auth'}; }
+    if(!r.ok){ setSync('err'); return {ok:false, reason:'http'}; }
+    const j = await r.json();
+    ghSha = j.sha;
+    const arr = JSON.parse(j.content ? b64Utf8(j.content) : '[]');
+    pedidos = Array.isArray(arr) ? arr : [];
+    await escribirCacheCifrada(); setSync('ok');
+    return {ok:true};
+  }catch(e){ setSync('err'); return {ok:false, reason:'red'}; }
+}
+
+// Sube los datos a GitHub (un commit). Reintenta si el SHA quedó viejo.
+async function ghPushNow(){
+  if(!ghOk()) return;
+  setSync('sync');
+  const body = { message:`Actualiza pedidos (${new Date().toLocaleString('es-AR')})`,
+                 content: utf8B64(JSON.stringify(pedidos, null, 2)), branch: gh.branch||'main' };
+  if(ghSha) body.sha = ghSha;
+  try{
+    let r = await fetch(ghUrl(false), {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if(r.status === 409 || r.status === 422){
+      const g = await fetch(ghUrl(true), {headers: ghHeaders(), cache:'no-store'});
+      if(g.ok){ const gj = await g.json(); ghSha = gj.sha; body.sha = ghSha; }
+      r = await fetch(ghUrl(false), {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    }
+    if(!r.ok){ setSync('err'); pushPend = true; return; }
+    const j = await r.json();
+    ghSha = (j.content && j.content.sha) ? j.content.sha : ghSha;
+    pushPend = false; setSync('ok');
+  }catch(e){ setSync('err'); pushPend = true; }
+}
+function ghPushDebounced(){
+  if(!ghOk()) return;
+  pushPend = true; setSync('sync');
+  clearTimeout(pushT); pushT = setTimeout(ghPushNow, 800);
+}
+
+// API que usa el resto de la app
+async function cargar(){ return await leerCacheCifrada(); }              // arranque desde caché cifrada
+async function guardar(){ await escribirCacheCifrada(); ghPushDebounced(); } // guarda local cifrado y sube a GitHub
+
+// ---- Estado ----
+let pedidos = [];
+let filtro = 'todos';
+let busqueda = '';
+let editandoId = null;
+let estadoForm = 'pendiente';
+let modoAgrupar = 'pedido';   // 'pedido' (día en que se cargó) o 'entrega'
+
+// ---- Utilidades ----
+const $ = s => document.querySelector(s);
+const money = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n||0);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fechaCorta(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y.slice(2)}`;
+}
+// Fecha de HOY en horario local (no UTC), para que el día del pedido sea el correcto
+function hoyISO(){
+  const d = new Date();
+  return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+}
+// Arma el link de WhatsApp a partir del teléfono (solo dígitos)
+function waLink(tel){
+  const d = String(tel||'').replace(/[^\d]/g,'');
+  return d ? 'https://wa.me/' + d : '';
+}
+// Etiqueta amigable del día: "Hoy", "Ayer" o "Martes 18/06"
+function etiquetaDia(iso){
+  if(!iso) return 'Sin fecha';
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const [y,m,d] = iso.split('-').map(Number);
+  const f = new Date(y, m-1, d);
+  const dif = Math.round((hoy - f) / 86400000);
+  if(dif === 0) return 'Hoy';
+  if(dif === 1) return 'Ayer';
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  return `${dias[f.getDay()]} ${fechaCorta(iso)}`;
+}
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// Confirmación propia (no usa confirm() del navegador, que puede estar bloqueado)
+let _cfResolve = null;
+function confirmar({titulo='¿Confirmar?', mensaje='', ok='Confirmar', peligro=false}={}){
+  return new Promise(res=>{
+    _cfResolve = res;
+    $('#cf-title').textContent = titulo;
+    $('#cf-msg').textContent = mensaje;
+    const b = $('#cf-ok');
+    b.textContent = ok;
+    b.classList.toggle('btn-danger', peligro);
+    $('#overlayConfirm').classList.add('open');
+  });
+}
+function cerrarConfirm(val){
+  $('#overlayConfirm').classList.remove('open');
+  const r = _cfResolve; _cfResolve = null;
+  if(r) r(val);
+}
+
+// ---- Render ----
+function calcular(){
+  let porCobrar = 0, cobrado = 0;
+  for(const p of pedidos){ (p.estado==='cobrado' ? (cobrado+=p.monto) : (porCobrar+=p.monto)); }
+  return {porCobrar, cobrado, total:porCobrar+cobrado};
+}
+
+function renderStats(){
+  const {porCobrar, cobrado} = calcular();
+  const nPend = pedidos.filter(p=>p.estado!=='cobrado').length;
+  const nCob  = pedidos.filter(p=>p.estado==='cobrado').length;
+  $('#stats').innerHTML = `
+    <div class="stat por-cobrar">
+      <div class="label">Por cobrar</div>
+      <div class="num">${money(porCobrar)}</div>
+      <div class="count">${nPend} pedido${nPend!==1?'s':''} pendiente${nPend!==1?'s':''}</div>
+    </div>
+    <div class="stat cobrado">
+      <div class="label">Cobrado</div>
+      <div class="num">${money(cobrado)}</div>
+      <div class="count">${nCob} cerrado${nCob!==1?'s':''}</div>
+    </div>
+    <div class="stat">
+      <div class="label">Total</div>
+      <div class="num">${money(porCobrar+cobrado)}</div>
+      <div class="count">${pedidos.length} en total</div>
+    </div>`;
+}
+
+function visibles(){
+  const q = busqueda.trim().toLowerCase();
+  return pedidos
+    .filter(p => filtro==='todos' ? true : p.estado===filtro)
+    .filter(p => !q || p.cliente.toLowerCase().includes(q) || (p.detalle||'').toLowerCase().includes(q))
+    .sort((a,b)=>{
+      // pendientes primero, luego por entrega/creación más reciente
+      if(a.estado!==b.estado) return a.estado==='cobrado' ? 1 : -1;
+      const fa = a.entrega || a.creado, fb = b.entrega || b.creado;
+      return fb < fa ? -1 : fb > fa ? 1 : 0;
+    });
+}
+
+function cardHTML(p){
+  const cob = p.estado==='cobrado';
+  const wa = waLink(p.telefono);
+  return `<div class="card ${cob?'cobrado':''}">
+    <div class="card-row">
+      <div>
+        <div class="cliente">${esc(p.cliente)}</div>
+        ${p.detalle ? `<div class="detalle">${esc(p.detalle)}</div>` : ''}
+      </div>
+      <div class="monto">${money(p.monto)}</div>
+    </div>
+    <div class="meta">
+      <span class="badge ${cob?'cob':'pend'}">${cob?'Cobrado':'Por cobrar'}</span>
+      ${p.creado ? `<span class="fecha">🗓 Pedido ${fechaCorta(p.creado)}</span>` : ''}
+      ${p.entrega ? `<span class="fecha">📦 Entrega ${fechaCorta(p.entrega)}</span>` : ''}
+      ${p.telefono ? `<span class="fecha">📞 ${esc(p.telefono)}</span>` : ''}
+    </div>
+    ${p.nota ? `<div class="nota">${esc(p.nota)}</div>` : ''}
+    <div class="card-actions">
+      ${cob
+        ? `<button class="act reabrir" data-act="toggle" data-id="${p.id}">↩ Marcar por cobrar</button>`
+        : `<button class="act cobrar" data-act="toggle" data-id="${p.id}">✓ Cobré</button>`}
+      ${wa ? `<a class="act wa" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}
+      <button class="act" data-act="edit" data-id="${p.id}">Editar</button>
+      <button class="act del" data-act="del" data-id="${p.id}">Borrar</button>
+    </div>
+  </div>`;
+}
+
+function renderList(){
+  const items = visibles();
+  const list = $('#list');
+  if(pedidos.length === 0){
+    list.innerHTML = `<div class="empty"><div class="emoji">🧁</div>
+      <h3>Todavía no cargaste pedidos</h3>
+      <p>Tocá “Nuevo pedido” para registrar el primero.</p></div>`;
+    return;
+  }
+  if(items.length === 0){
+    list.innerHTML = `<div class="empty"><div class="emoji">🔍</div>
+      <h3>Sin resultados</h3><p>Probá con otro filtro o búsqueda.</p></div>`;
+    return;
+  }
+
+  // Agrupamos según el modo elegido: por día del pedido o por día de entrega
+  const porEntrega = modoAgrupar === 'entrega';
+  const grupos = {};
+  for(const p of items){
+    const k = (porEntrega ? p.entrega : p.creado) || '__sin__';
+    (grupos[k] = grupos[k] || []).push(p);
+  }
+
+  // Ordenamos los días: en "pedido", los más recientes arriba.
+  // En "entrega", las entregas próximas primero, luego las pasadas, y al final lo que no tiene fecha.
+  const sin = Object.keys(grupos).filter(k => k === '__sin__');
+  let conFecha = Object.keys(grupos).filter(k => k !== '__sin__');
+  if(porEntrega){
+    const hoy = hoyISO();
+    const futuras = conFecha.filter(k => k >= hoy).sort();
+    const pasadas = conFecha.filter(k => k <  hoy).sort((a,b)=> a<b?1:-1);
+    conFecha = [...futuras, ...pasadas];
+  } else {
+    conFecha.sort((a,b)=> a<b?1:a>b?-1:0);
+  }
+  const dias = [...conFecha, ...sin];
+
+  list.innerHTML = dias.map(dia=>{
+    const arr = grupos[dia];
+    const totalDia = arr.reduce((s,p)=>s+p.monto,0);
+    const pendDia = arr.filter(p=>p.estado!=='cobrado').reduce((s,p)=>s+p.monto,0);
+    const label = dia === '__sin__'
+      ? (porEntrega ? 'Sin fecha de entrega' : 'Sin fecha')
+      : etiquetaDia(dia);
+    return `<div class="day">
+      <div class="day-head">
+        <span class="day-label">${label}</span>
+        <span class="day-sum">${money(totalDia)} · ${arr.length} pedido${arr.length!==1?'s':''}${pendDia>0?` · <span class="day-pend">${money(pendDia)} por cobrar</span>`:''}</span>
+      </div>
+      ${arr.map(cardHTML).join('')}
+    </div>`;
+  }).join('');
+}
+
+function render(){ renderStats(); renderList(); }
+
+// ---- Acciones sobre pedidos ----
+async function toggleEstado(id){
+  const p = pedidos.find(x=>x.id===id); if(!p) return;
+  p.estado = p.estado==='cobrado' ? 'pendiente' : 'cobrado';
+  await guardar(); render();
+  toast(p.estado==='cobrado' ? '¡Pedido cobrado! 🎉' : 'Marcado como por cobrar');
+}
+async function borrar(id){
+  const p = pedidos.find(x=>x.id===id); if(!p) return;
+  const ok = await confirmar({
+    titulo:'Borrar pedido',
+    mensaje:`¿Seguro que querés borrar el pedido de ${p.cliente}? Esta acción no se puede deshacer.`,
+    ok:'Borrar', peligro:true
+  });
+  if(!ok) return;
+  pedidos = pedidos.filter(x=>x.id!==id);
+  await guardar(); render(); toast('Pedido borrado');
+}
+
+// ---- Modal ----
+function abrirModal(id){
+  editandoId = id || null;
+  const p = id ? pedidos.find(x=>x.id===id) : null;
+  $('#sheetTitle').textContent = p ? 'Editar pedido' : 'Nuevo pedido';
+  $('#f-cliente').value = p ? p.cliente : '';
+  $('#f-detalle').value = p ? (p.detalle||'') : '';
+  $('#f-tel').value     = p ? (p.telefono||'') : '';
+  $('#f-monto').value   = p ? p.monto : '';
+  $('#f-fecha').value   = p ? (p.entrega||'') : '';
+  $('#f-nota').value    = p ? (p.nota||'') : '';
+  setEstadoForm(p ? p.estado : 'pendiente');
+  $('#err-cliente').style.display='none'; $('#err-monto').style.display='none';
+  $('#overlay').classList.add('open');
+  setTimeout(()=>$('#f-cliente').focus(), 50);
+}
+function cerrarModal(){ $('#overlay').classList.remove('open'); editandoId=null; }
+function setEstadoForm(e){
+  estadoForm = e;
+  document.querySelectorAll('#seg button').forEach(b=>{
+    const on = b.dataset.e===e;
+    b.className = on ? (e==='cobrado'?'on-cob':'on-pend') : '';
+  });
+}
+async function guardarPedido(){
+  const cliente = $('#f-cliente').value.trim();
+  const montoRaw = $('#f-monto').value;
+  const monto = parseFloat(montoRaw);
+  let ok = true;
+  if(!cliente){ $('#err-cliente').style.display='block'; ok=false; } else $('#err-cliente').style.display='none';
+  if(montoRaw==='' || isNaN(monto) || monto<0){ $('#err-monto').style.display='block'; ok=false; } else $('#err-monto').style.display='none';
+  if(!ok) return;
+
+  const datos = {
+    cliente,
+    telefono: $('#f-tel').value.trim(),
+    detalle: $('#f-detalle').value.trim(),
+    monto,
+    entrega: $('#f-fecha').value || '',
+    nota: $('#f-nota').value.trim(),
+    estado: estadoForm,
+  };
+  if(editandoId){
+    const p = pedidos.find(x=>x.id===editandoId);
+    Object.assign(p, datos);
+    toast('Pedido actualizado');
+  } else {
+    pedidos.push({ id: uid(), creado: hoyISO(), ...datos });
+    toast('Pedido guardado ✓');
+  }
+  await guardar(); render(); cerrarModal();
+}
+
+// ---- Resumen mensual (PDF vía impresión) ----
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function mesLabel(clave){ const [y,m] = clave.split('-'); return `${MESES[Number(m)-1]} ${y}`; }
+
+function abrirReporte(){
+  const sel = $('#f-mes');
+  // Meses disponibles según la fecha de pedido, más el mes actual
+  const set = new Set(pedidos.map(p => (p.creado||'').slice(0,7)).filter(Boolean));
+  set.add(hoyISO().slice(0,7));
+  const meses = [...set].sort().reverse();
+  sel.innerHTML = meses.map(m => `<option value="${m}">${mesLabel(m)}</option>`).join('');
+  $('#overlayMes').classList.add('open');
+}
+function cerrarReporte(){ $('#overlayMes').classList.remove('open'); }
+
+function generarReporte(){
+  const clave = $('#f-mes').value;                 // "YYYY-MM"
+  const delMes = pedidos
+    .filter(p => (p.creado||'').slice(0,7) === clave)
+    .sort((a,b)=> (a.creado||'') < (b.creado||'') ? -1 : 1);
+
+  const facturado = delMes.reduce((s,p)=>s+p.monto,0);
+  const cobrado   = delMes.filter(p=>p.estado==='cobrado').reduce((s,p)=>s+p.monto,0);
+  const porCobrar = facturado - cobrado;
+  const nCob = delMes.filter(p=>p.estado==='cobrado').length;
+  const nPend = delMes.length - nCob;
+
+  // Pendientes agrupados por cliente (quién te debe)
+  const deudas = {};
+  delMes.filter(p=>p.estado!=='cobrado').forEach(p=>{ deudas[p.cliente]=(deudas[p.cliente]||0)+p.monto; });
+  const deudores = Object.entries(deudas).sort((a,b)=>b[1]-a[1]);
+
+  const filas = delMes.map(p=>`
+    <tr class="${p.estado==='cobrado'?'r-cob':'r-pend'}">
+      <td>${esc(p.cliente)}</td>
+      <td>${esc(p.detalle||'—')}</td>
+      <td class="c">${fechaCorta(p.creado)}</td>
+      <td class="c">${p.entrega?fechaCorta(p.entrega):'—'}</td>
+      <td class="r">${money(p.monto)}</td>
+      <td class="c"><span class="tag ${p.estado==='cobrado'?'t-cob':'t-pend'}">${p.estado==='cobrado'?'Cobrado':'Por cobrar'}</span></td>
+    </tr>`).join('');
+
+  const cuerpo = delMes.length === 0
+    ? `<p class="vacio">No hay pedidos registrados en ${mesLabel(clave)}.</p>`
+    : `
+      <div class="cards">
+        <div class="rc"><span>Facturado</span><b>${money(facturado)}</b></div>
+        <div class="rc green"><span>Cobrado</span><b>${money(cobrado)}</b></div>
+        <div class="rc plum"><span>Por cobrar</span><b>${money(porCobrar)}</b></div>
+      </div>
+      <p class="resumen-linea">${delMes.length} pedido${delMes.length!==1?'s':''} en el mes · ${nCob} cobrado${nCob!==1?'s':''} · ${nPend} pendiente${nPend!==1?'s':''}</p>
+      ${deudores.length ? `<h3>Pendientes de cobro</h3>
+        <table class="mini"><tbody>
+          ${deudores.map(([c,m])=>`<tr><td>${esc(c)}</td><td class="r">${money(m)}</td></tr>`).join('')}
+        </tbody></table>` : ''}
+      <h3>Detalle de pedidos</h3>
+      <table class="full">
+        <thead><tr><th>Cliente</th><th>Detalle</th><th>Pedido</th><th>Entrega</th><th class="r">Monto</th><th class="c">Estado</th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>`;
+
+  const generadoEl = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
+  const html = `<!DOCTYPE html><html lang="es-AR"><head><meta charset="UTF-8">
+  <title>Resumen ${mesLabel(clave)} · Dulcero</title>
+  <style>
+    @page{margin:18mm 16mm}
+    *{box-sizing:border-box}
+    body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#2C2228;margin:0;font-size:13px;line-height:1.5}
+    .head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #7A2E52;padding-bottom:10px;margin-bottom:18px}
+    .brand{font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#7A2E52;font-weight:700}
+    .brand small{display:block;font-family:inherit;font-size:11px;color:#9A8A92;font-weight:400;letter-spacing:.04em;text-transform:uppercase}
+    .head .right{text-align:right;font-size:11px;color:#9A8A92}
+    .head .right b{display:block;font-size:15px;color:#2C2228;font-weight:600}
+    .cards{display:flex;gap:10px;margin-bottom:14px}
+    .rc{flex:1;border:1px solid #EFE5DE;border-radius:10px;padding:11px 13px}
+    .rc span{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9A8A92;font-weight:600}
+    .rc b{display:block;font-family:Georgia,serif;font-size:19px;margin-top:4px}
+    .rc.green{background:#E2F2EC;border-color:#C7E5D9} .rc.green b{color:#15795C}
+    .rc.plum{background:#F6E8EF;border-color:#EBD6E0} .rc.plum b{color:#7A2E52}
+    .resumen-linea{color:#6b5d63;margin:0 0 18px;font-size:12px}
+    h3{font-family:Georgia,serif;font-size:14px;margin:20px 0 8px;color:#2C2228}
+    table{width:100%;border-collapse:collapse}
+    table.full th{background:#FAF4EF;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#7a6e72;padding:7px 8px;border-bottom:1px solid #EFE5DE}
+    table.full td{padding:7px 8px;border-bottom:1px solid #F1EAE4;vertical-align:top}
+    table.mini td{padding:5px 8px;border-bottom:1px solid #F1EAE4}
+    .r{text-align:right;white-space:nowrap} .c{text-align:center;white-space:nowrap}
+    .tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px}
+    .t-cob{background:#E2F2EC;color:#15795C} .t-pend{background:#FBEFDD;color:#B26A14}
+    tr.r-cob td{color:#7a6e72}
+    .vacio{color:#9A8A92;padding:30px 0;text-align:center}
+    .pie{margin-top:24px;padding-top:10px;border-top:1px solid #EFE5DE;font-size:10px;color:#b0a3a8;text-align:center}
+    @media print{.tag,.rc.green,.rc.plum{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>
+    <div class="head">
+      <div class="brand">Dulcero<small>Resumen mensual</small></div>
+      <div class="right"><b>${mesLabel(clave)}</b>Generado el ${generadoEl}</div>
+    </div>
+    ${cuerpo}
+    <div class="pie">Reporte generado con Dulcero · ${generadoEl}</div>
+  </body></html>`;
+
+  // Imprimimos en un iframe oculto (sin ventanas emergentes), el usuario elige "Guardar como PDF"
+  let fr = document.getElementById('printFrame');
+  if(fr) fr.remove();
+  fr = document.createElement('iframe');
+  fr.id = 'printFrame';
+  fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(fr);
+  const doc = fr.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+  fr.onload = () => { setTimeout(()=>{ fr.contentWindow.focus(); fr.contentWindow.print(); }, 250); };
+  cerrarReporte();
+  toast('Elegí “Guardar como PDF” en el diálogo');
+}
+
+// ---- Conexión con GitHub (cambiar repo/token estando logueado) ----
+function abrirGh(){
+  $('#gh-owner').value  = gh ? (gh.owner||'')  : '';
+  $('#gh-repo').value   = gh ? (gh.repo||'')   : '';
+  $('#gh-path').value   = gh ? (gh.path||'pedidos.json') : 'pedidos.json';
+  $('#gh-branch').value = gh ? (gh.branch||'main') : 'main';
+  $('#gh-token').value  = gh ? (gh.token||'')  : '';
+  $('#gh-estado').textContent = ghOk() ? 'Conectado ✓' : 'No conectado';
+  $('#overlayGh').classList.add('open');
+}
+function cerrarGh(){ $('#overlayGh').classList.remove('open'); }
+
+async function conectarGh(){
+  const c = {
+    owner:  $('#gh-owner').value.trim(),
+    repo:   $('#gh-repo').value.trim(),
+    path:   $('#gh-path').value.trim() || 'pedidos.json',
+    branch: $('#gh-branch').value.trim() || 'main',
+    token:  $('#gh-token').value.trim(),
+  };
+  if(!c.owner || !c.repo || !c.token){ $('#gh-estado').textContent = 'Completá usuario, repositorio y token.'; return; }
+  const prev = gh, localPrev = pedidos.slice();
+  gh = c; ghSha = null;
+  $('#gh-estado').textContent = 'Probando conexión…';
+  const res = await ghPull();
+  if(res.ok){
+    if(res.nuevo){ pedidos = localPrev; await ghPushNow(); }                 // crea el archivo con lo que tengas
+    else if(pedidos.length === 0 && localPrev.length > 0){ pedidos = localPrev; await ghPushNow(); }
+    await actualizarGhEnVault(c);     // guarda el token cifrado
+    await escribirCacheCifrada();
+    render(); setSync('ok');
+    $('#gh-estado').textContent = 'Conectado ✓';
+    toast('Conectado a GitHub ✓'); cerrarGh();
+  } else {
+    gh = prev; setSync(ghOk()?'ok':'off');
+    $('#gh-estado').textContent = res.reason === 'auth'
+      ? 'Token inválido o sin permiso sobre el repo.'
+      : 'No se pudo conectar. Revisá los datos o tu conexión.';
+  }
+}
+
+// ---- Pantalla de acceso (login / configuración) ----
+function mostrarAuth(){ $('#auth').style.display = 'flex'; }
+function ocultarAuth(){ $('#auth').style.display = 'none'; }
+function panelLogin(){ $('#loginPanel').hidden = false; $('#setupPanel').hidden = true; $('#lg-err').textContent=''; $('#lg-pass').value=''; setTimeout(()=>$('#lg-pass').focus(), 60); }
+function panelSetup(){
+  $('#setupPanel').hidden = false; $('#loginPanel').hidden = true; $('#su-err').textContent='';
+  setTimeout(()=>$('#su-pass').focus(), 60);
+}
+
+async function desbloquear(){
+  ocultarAuth();
+  render(); setSync('ok');
+  if(ghOk()){
+    const res = await ghPull();
+    if(res.ok) render();
+    else if(res.reason === 'auth') toast('Revisá tu token de GitHub');
+  }
+  await escribirCacheCifrada();
+}
+
+async function hacerLogin(){
+  if(!cryptoOk){ $('#lg-err').textContent = 'Este navegador necesita HTTPS para el cifrado.'; return; }
+  const ok = await abrirVault($('#lg-pass').value);
+  if(ok){ pedidos = await cargar(); await desbloquear(); }
+  else { $('#lg-err').textContent = 'Contraseña incorrecta.'; }
+}
+
+async function hacerSetup(){
+  const err = $('#su-err');
+  if(!cryptoOk){ err.textContent = 'Este navegador necesita HTTPS (funciona en GitHub Pages).'; return; }
+  const p1 = $('#su-pass').value, p2 = $('#su-pass2').value;
+  if(p1.length < 4){ err.textContent = 'La contraseña debe tener al menos 4 caracteres.'; return; }
+  if(p1 !== p2){ err.textContent = 'Las contraseñas no coinciden.'; return; }
+  await crearVault(p1, {});           // sin GitHub por ahora: solo contraseña
+  pedidos = [];
+  await escribirCacheCifrada();
+  await desbloquear();
+  toast('¡Listo! Para usarlo en varios dispositivos, conectá GitHub en el menú ⋯');
+}
+
+function cerrarSesion(){
+  appKey = null; gh = null; ghSha = null; pedidos = [];
+  render(); $('#menu').classList.remove('open');
+  panelLogin(); mostrarAuth();
+}
+async function reconfigurar(){
+  const ok = await confirmar({ titulo:'Reconfigurar acceso',
+    mensaje:'Esto borra la conexión y la contraseña de ESTE dispositivo. Tus pedidos en GitHub no se tocan: los recuperás al volver a conectar. ¿Seguir?',
+    ok:'Reconfigurar', peligro:true });
+  if(!ok) return;
+  borrarVault(); pedidos = [];
+  panelSetup(); mostrarAuth();
+}
+
+// ---- Respaldo / exportación ----
+function descargar(nombre, contenido, tipo){
+  const blob = new Blob([contenido], {type:tipo});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function exportarJson(){
+  descargar(`pedidos-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(pedidos,null,2), 'application/json');
+  toast('Respaldo descargado');
+}
+function exportarCsv(){
+  const cab = ['Cliente','Teléfono','Detalle','Monto','Día del pedido','Entrega','Estado','Nota'];
+  const filas = pedidos.map(p => [p.cliente, p.telefono||'', p.detalle||'', p.monto, p.creado||'', p.entrega||'', p.estado, p.nota||'']
+    .map(c => `"${String(c).replace(/"/g,'""')}"`).join(','));
+  descargar(`pedidos-${new Date().toISOString().slice(0,10)}.csv`, '\uFEFF'+[cab.join(','),...filas].join('\n'), 'text/csv');
+  toast('CSV exportado (abrilo en Excel o Sheets)');
+}
+function importarJson(file){
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!Array.isArray(data)) throw new Error();
+      if(!(await confirmar({
+        titulo:'Importar respaldo',
+        mensaje:`Vas a importar ${data.length} pedido(s). Esto reemplaza los pedidos actuales. ¿Seguir?`,
+        ok:'Importar'
+      }))) return;
+      pedidos = data.map(p => ({ id: p.id||uid(), creado: p.creado||hoyISO(),
+        cliente:p.cliente||'', telefono:p.telefono||'', detalle:p.detalle||'', monto:Number(p.monto)||0,
+        entrega:p.entrega||'', nota:p.nota||'', estado: p.estado==='cobrado'?'cobrado':'pendiente' }));
+      await guardar(); render(); toast('Respaldo importado ✓');
+    }catch(e){ toast('El archivo no es un respaldo válido'); }
+  };
+  reader.readAsText(file);
+}
+
+// ---- Eventos ----
+$('#newBtn').addEventListener('click', ()=>abrirModal());
+$('#cancelBtn').addEventListener('click', cerrarModal);
+$('#saveBtn').addEventListener('click', guardarPedido);
+$('#overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') cerrarModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') { cerrarModal(); cerrarReporte(); cerrarGh(); cerrarConfirm(false); $('#menu').classList.remove('open'); } });
+
+$('#seg').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setEstadoForm(b.dataset.e); });
+
+$('#search').addEventListener('input', e=>{ busqueda = e.target.value; renderList(); });
+
+$('#filters').addEventListener('click', e=>{
+  const c = e.target.closest('.chip'); if(!c) return;
+  filtro = c.dataset.f;
+  document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active', x===c));
+  renderList();
+});
+
+$('#groupBy').addEventListener('click', e=>{
+  const b = e.target.closest('.gb-btn'); if(!b) return;
+  modoAgrupar = b.dataset.g;
+  document.querySelectorAll('.gb-btn').forEach(x=>x.classList.toggle('active', x===b));
+  renderList();
+});
+
+$('#list').addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const id = b.dataset.id;
+  if(b.dataset.act==='toggle') toggleEstado(id);
+  else if(b.dataset.act==='edit') abrirModal(id);
+  else if(b.dataset.act==='del') borrar(id);
+});
+
+// Menú de respaldo
+$('#menuBtn').addEventListener('click', e=>{ e.stopPropagation(); $('#menu').classList.toggle('open'); });
+document.addEventListener('click', ()=>$('#menu').classList.remove('open'));
+$('#menu').addEventListener('click', e=>e.stopPropagation());
+$('#exportJson').addEventListener('click', ()=>{ exportarJson(); $('#menu').classList.remove('open'); });
+$('#exportCsv').addEventListener('click', ()=>{ exportarCsv(); $('#menu').classList.remove('open'); });
+$('#reporteBtn').addEventListener('click', ()=>{ abrirReporte(); $('#menu').classList.remove('open'); });
+$('#ghBtn').addEventListener('click', ()=>{ abrirGh(); $('#menu').classList.remove('open'); });
+$('#ghPullBtn').addEventListener('click', async ()=>{
+  $('#menu').classList.remove('open');
+  if(!ghOk()){ toast('Primero conectá GitHub'); return; }
+  const r = await ghPull(); render(); toast(r.ok ? 'Datos actualizados ✓' : 'No se pudieron traer los datos');
+});
+$('#cancelGh').addEventListener('click', cerrarGh);
+$('#conectarGh').addEventListener('click', conectarGh);
+$('#logoutBtn').addEventListener('click', cerrarSesion);
+$('#overlayGh').addEventListener('click', e=>{ if(e.target.id==='overlayGh') cerrarGh(); });
+// Pantalla de acceso
+$('#lg-entrar').addEventListener('click', hacerLogin);
+$('#lg-reset').addEventListener('click', reconfigurar);
+$('#su-crear').addEventListener('click', hacerSetup);
+$('#lg-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') hacerLogin(); });
+$('#su-pass2').addEventListener('keydown', e=>{ if(e.key==='Enter') hacerSetup(); });
+$('#cancelMes').addEventListener('click', cerrarReporte);
+$('#genMes').addEventListener('click', generarReporte);
+$('#overlayMes').addEventListener('click', e=>{ if(e.target.id==='overlayMes') cerrarReporte(); });
+$('#cf-ok').addEventListener('click', ()=>cerrarConfirm(true));
+$('#cf-cancel').addEventListener('click', ()=>cerrarConfirm(false));
+$('#overlayConfirm').addEventListener('click', e=>{ if(e.target.id==='overlayConfirm') cerrarConfirm(false); });
+$('#importBtn').addEventListener('click', ()=>$('#importFile').click());
+$('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJson(e.target.files[0]); e.target.value=''; });
+
+// Enter para guardar (en inputs de texto del modal)
+['f-cliente','f-detalle','f-monto'].forEach(id=>{
+  $('#'+id).addEventListener('keydown', e=>{ if(e.key==='Enter') guardarPedido(); });
+});
+
+// ---- Inicio ----
+(function init(){
+  render();  // dibuja la app vacía detrás de la pantalla de acceso
+  if(!cryptoOk){
+    // Sin HTTPS no hay cifrado: avisamos en ambas pantallas
+    $('#lg-err').textContent = 'Abrí la app por HTTPS (GitHub Pages) para poder usar el cifrado.';
+    $('#su-err').textContent = 'Abrí la app por HTTPS (GitHub Pages) para poder usar el cifrado.';
+  }
+  if(hayVault()) panelLogin(); else panelSetup();
+  mostrarAuth();
+})();
+
+// Al volver a la app en otro dispositivo, traemos los últimos cambios (si no hay nada pendiente de subir)
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && appKey && ghOk() && !pushPend){ ghPull().then(render); }
+});
+</script>
+</body>
+</html>
