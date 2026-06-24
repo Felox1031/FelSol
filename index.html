@@ -274,7 +274,7 @@
     <!-- Configuración inicial -->
     <div id="setupPanel" hidden>
       <h2 class="auth-title">Creá tu contraseña</h2>
-      <p class="mes-hint">Elegí una contraseña para entrar. Protege tus datos en este dispositivo. Después, si querés usar la app en el teléfono y la compu, conectás GitHub desde el menú.</p>
+      <p class="mes-hint">Elegí una contraseña <b>fuerte</b> (8+ caracteres) para entrar: va a proteger tus datos. Después, si querés usar la app en el teléfono y la compu, conectás GitHub desde el menú y vas a poder entrar en los demás dispositivos solo con esta contraseña.</p>
       <div class="field"><label for="su-pass">Contraseña</label><input id="su-pass" type="password" autocomplete="new-password"></div>
       <div class="field"><label for="su-pass2">Repetir contraseña</label><input id="su-pass2" type="password" autocomplete="new-password"></div>
       <p class="auth-err" id="su-err"></p>
@@ -402,7 +402,7 @@
 <div class="overlay" id="overlayGh">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ghTitle" style="max-width:460px">
     <h2 id="ghTitle">Conexión con GitHub</h2>
-    <p class="mes-hint">Conectá tu repositorio privado para usar la app en varios dispositivos. Usá un token fine-grained con permiso <b>Contents (lectura y escritura)</b> solo sobre ese repo. Se guarda cifrado en este dispositivo. Más adelante, si el token vence, lo renovás acá.</p>
+    <p class="mes-hint">Conectá tu repositorio privado para usar la app en varios dispositivos. Para que en los demás dispositivos alcance solo la contraseña, el token tiene que tener permiso <b>Contents (lectura y escritura)</b> sobre <b>los dos repos</b>: el privado de datos y el público de la app. Se guarda cifrado.</p>
     <div class="field-row">
       <div class="field"><label for="gh-owner">Usuario de GitHub</label><input id="gh-owner" type="text" placeholder="tu-usuario" autocomplete="off"></div>
       <div class="field"><label for="gh-repo">Repositorio</label><input id="gh-repo" type="text" placeholder="dulcero-datos" autocomplete="off"></div>
@@ -474,13 +474,18 @@ async function descifrar(key, p){
 }
 
 // ---- Vault: guarda el token de GitHub cifrado con la contraseña ----
-function vaultRaw(){ try{ const r = tieneLocal ? localStorage.getItem(VAULT_KEY) : null; return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+let _vaultMem = null;     // vault en memoria si el navegador bloquea localStorage
+let vaultSha = null;      // SHA del vault.json en el repo público de la app
+function vaultRaw(){
+  try{ if(tieneLocal){ const r = localStorage.getItem(VAULT_KEY); return r ? JSON.parse(r) : null; } return _vaultMem; }
+  catch(e){ return null; }
+}
+function setVaultRaw(obj){ if(tieneLocal) localStorage.setItem(VAULT_KEY, JSON.stringify(obj)); else _vaultMem = obj; }
 function hayVault(){ return !!vaultRaw(); }
 async function crearVault(pass, conf){
   const salt = crypto.getRandomValues(new Uint8Array(16));
   appKey = await derivarClave(pass, salt);
-  const vault = { v:1, salt: bytesB64(salt), gh: await cifrar(appKey, conf) };
-  if(tieneLocal) localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+  setVaultRaw({ v:1, salt: bytesB64(salt), gh: await cifrar(appKey, conf) });
   gh = conf;
 }
 async function abrirVault(pass){
@@ -495,10 +500,49 @@ async function actualizarGhEnVault(conf){
   if(!appKey) return;
   const vault = vaultRaw(); if(!vault) return;
   vault.gh = await cifrar(appKey, conf);
-  if(tieneLocal) localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
-  gh = conf;
+  setVaultRaw(vault); gh = conf;
 }
-function borrarVault(){ try{ if(tieneLocal){ localStorage.removeItem(VAULT_KEY); localStorage.removeItem(CACHE_KEY); } }catch(e){} _memEnc=''; gh=null; appKey=null; ghSha=null; }
+function borrarVault(){ try{ if(tieneLocal){ localStorage.removeItem(VAULT_KEY); localStorage.removeItem(CACHE_KEY); } }catch(e){} _vaultMem=null; _memEnc=''; gh=null; appKey=null; ghSha=null; vaultSha=null; }
+
+// ---- Acceso compartido entre dispositivos: vault.json en el repo público de la app ----
+// Deriva owner/repo del propio dominio github.io (ej: usuario.github.io/dulcero/)
+function appRepoURL(){
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  if(!m) return null;
+  const owner = m[1];
+  const seg = location.pathname.split('/').filter(Boolean);
+  return { owner, repo: seg.length ? seg[0] : `${owner}.github.io`, branch:'main' };
+}
+// Lee el vault público SIN token (lo necesita un dispositivo nuevo para arrancar)
+async function leerVaultRemoto(){
+  try{
+    const r = await fetch('vault.json?cb=' + Date.now(), {cache:'no-store'});
+    if(!r.ok) return null;
+    const v = await r.json();
+    return (v && v.salt && v.gh) ? v : null;
+  }catch(e){ return null; }
+}
+// Sube el vault cifrado al repo público de la app (requiere token con escritura en ese repo)
+async function escribirVaultRemoto(){
+  const ar = appRepoURL(); const vault = vaultRaw();
+  if(!ar || !vault || !ghOk()) return;
+  const url = `https://api.github.com/repos/${ar.owner}/${ar.repo}/contents/vault.json`;
+  try{
+    if(!vaultSha){
+      const g = await fetch(`${url}?ref=${ar.branch}`, {headers: ghHeaders(), cache:'no-store'});
+      if(g.ok){ vaultSha = (await g.json()).sha; }
+    }
+    const body = { message:'Actualiza acceso', content: utf8B64(JSON.stringify(vault)), branch: ar.branch };
+    if(vaultSha) body.sha = vaultSha;
+    let r = await fetch(url, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if(r.status === 409 || r.status === 422){
+      const g = await fetch(`${url}?ref=${ar.branch}`, {headers: ghHeaders(), cache:'no-store'});
+      if(g.ok){ vaultSha = (await g.json()).sha; body.sha = vaultSha; }
+      r = await fetch(url, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    }
+    if(r.ok){ const j = await r.json(); vaultSha = (j.content && j.content.sha) || vaultSha; }
+  }catch(e){}
+}
 
 // ---- Caché de pedidos (también cifrada con la misma clave) ----
 async function leerCacheCifrada(){
@@ -996,6 +1040,7 @@ async function conectarGh(){
     if(res.nuevo){ pedidos = localPrev; await ghPushNow(); }                 // crea el archivo con lo que tengas
     else if(pedidos.length === 0 && localPrev.length > 0){ pedidos = localPrev; await ghPushNow(); }
     await actualizarGhEnVault(c);     // guarda el token cifrado
+    await escribirVaultRemoto();      // lo publica (cifrado) para entrar desde otros dispositivos solo con contraseña
     await escribirCacheCifrada();
     render(); setSync('ok');
     $('#gh-estado').textContent = 'Conectado ✓';
@@ -1039,7 +1084,7 @@ async function hacerSetup(){
   const err = $('#su-err');
   if(!cryptoOk){ err.textContent = 'Este navegador necesita HTTPS (funciona en GitHub Pages).'; return; }
   const p1 = $('#su-pass').value, p2 = $('#su-pass2').value;
-  if(p1.length < 4){ err.textContent = 'La contraseña debe tener al menos 4 caracteres.'; return; }
+  if(p1.length < 8){ err.textContent = 'Usá una contraseña de al menos 8 caracteres (es lo que protege tu acceso).'; return; }
   if(p1 !== p2){ err.textContent = 'Las contraseñas no coinciden.'; return; }
   await crearVault(p1, {});           // sin GitHub por ahora: solo contraseña
   pedidos = [];
@@ -1172,12 +1217,16 @@ $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJ
 });
 
 // ---- Inicio ----
-(function init(){
+(async function init(){
   render();  // dibuja la app vacía detrás de la pantalla de acceso
   if(!cryptoOk){
-    // Sin HTTPS no hay cifrado: avisamos en ambas pantallas
     $('#lg-err').textContent = 'Abrí la app por HTTPS (GitHub Pages) para poder usar el cifrado.';
     $('#su-err').textContent = 'Abrí la app por HTTPS (GitHub Pages) para poder usar el cifrado.';
+  }
+  // Dispositivo nuevo: si no hay acceso local pero existe el vault publicado, lo usamos (entrás solo con contraseña)
+  if(!hayVault()){
+    const remoto = await leerVaultRemoto();
+    if(remoto) setVaultRaw(remoto);
   }
   if(hayVault()) panelLogin(); else panelSetup();
   mostrarAuth();
