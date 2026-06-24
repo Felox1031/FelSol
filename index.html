@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#7A2E52">
-<title>FelSol · Gestión de pedidos</title>
+<title>Dulcero · Gestión de pedidos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,7 +55,17 @@
     position:sticky;top:0;z-index:5;
     background:rgba(251,246,241,.86);backdrop-filter:blur(8px);
     border-bottom:1px solid var(--line);
-    padding:14px 0 12px;margin-bottom:18px;
+    padding:14px 0 0;margin-bottom:18px;
+  }
+  /* Nav tabs */
+  .nav-tabs{max-width:760px;margin:10px auto 0;padding:0 16px;display:flex;gap:4px;border-top:1px solid var(--line)}
+  .nav-tab{
+    padding:10px 16px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;
+    font-family:inherit;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:.15s;border-radius:0;
+  }
+  .nav-tab:hover{color:var(--ink)}
+  .nav-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
   }
   .top-inner{max-width:760px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px}
   .brand-mark{
@@ -242,6 +252,141 @@
   .menu .sep{height:1px;background:var(--line);margin:4px 6px}
   .menu small{display:block;color:var(--muted);padding:6px 11px 2px;font-size:.72rem}
 
+  /* Vistas */
+  .vista{display:none}
+  .vista.active{display:block}
+
+  /* Ingredientes & Recetas — cards genéricas */
+  .ing-card,.rec-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;box-shadow:var(--shadow);margin-bottom:11px;
+  }
+  .ing-header,.rec-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .ing-nombre,.rec-nombre{font-weight:600;font-size:1.02rem;letter-spacing:-.01em}
+  .ing-cat,.rec-cat{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--brand-soft);color:var(--brand);margin-top:3px;display:inline-block}
+  .ing-precio{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;letter-spacing:-.02em;white-space:nowrap;color:var(--mint)}
+  .ing-meta,.rec-meta{font-size:.8rem;color:var(--muted);margin-top:5px}
+  .ing-historial{margin-top:10px;background:#FAF4EF;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+  .ing-hist-toggle{background:none;border:none;cursor:pointer;font-size:.78rem;color:var(--muted);font-weight:600;font-family:inherit;padding:0;display:flex;align-items:center;gap:5px}
+  .ing-hist-toggle:hover{color:var(--brand)}
+  .ing-hist-list{margin-top:7px;display:flex;flex-direction:column;gap:3px}
+  .ing-hist-row{display:flex;justify-content:space-between;font-size:.78rem;padding:3px 0;border-bottom:1px solid var(--line)}
+  .ing-hist-row:last-child{border-bottom:none}
+  .ing-hist-precio{font-weight:600;color:var(--ink)}
+  .ing-hist-fecha{color:var(--muted)}
+  .ing-hist-actual{color:var(--mint);font-size:.7rem;font-weight:700;margin-left:6px}
+  .precio-changed{font-size:.72rem;background:var(--amber-soft);color:var(--amber);border-radius:99px;padding:2px 8px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+
+  /* Receta */
+  .rec-costo{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--brand);white-space:nowrap}
+  .rec-rinde{font-size:.78rem;color:var(--muted)}
+  .rec-costo-unit{font-size:.8rem;color:var(--mint);font-weight:600;margin-top:2px}
+  .rec-ingredientes{margin-top:10px;background:#FAF4EF;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+  .rec-ing-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;padding:4px 0;border-bottom:1px solid var(--line)}
+  .rec-ing-row:last-child{border-bottom:none}
+  .rec-ing-nombre{color:var(--ink);font-weight:500}
+  .rec-ing-nombre.es-receta{color:var(--brand);font-style:italic}
+  .rec-ing-cant{color:var(--muted);font-size:.76rem}
+  .rec-ing-costo{color:var(--mint);font-weight:600;white-space:nowrap}
+  .rec-multiplicador{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .mult-label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+  .mult-controls{display:flex;align-items:center;gap:10px}
+  .mult-btn{width:30px;height:30px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto}
+  .mult-btn:hover{border-color:var(--brand);color:var(--brand)}
+  .mult-val{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;min-width:28px;text-align:center}
+  .mult-resultado{flex:1;font-size:.88rem}
+  .mult-resultado strong{color:var(--brand);font-family:'Fraunces',serif}
+  .mult-guardar{font-size:.78rem;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-family:inherit;color:var(--muted);transition:.15s;margin-left:auto}
+  .mult-guardar:hover{border-color:var(--brand);color:var(--brand)}
+
+  /* Form de ingredientes del formulario receta */
+  .rec-ing-form-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+  .rec-ing-form-row{background:#FAF4EF;border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:7px}
+  .rec-ing-form-top{display:flex;gap:7px;align-items:center}
+  .rec-ing-form-top select,.rec-ing-form-top input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.88rem;font-family:inherit;color:var(--ink);background:var(--bg)}
+  .rec-ing-form-top select:focus,.rec-ing-form-top input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
+  .rec-ing-form-top .inp-cant-rec{max-width:80px}
+  .rec-ing-form-top .sel-unidad{max-width:68px}
+  .rec-ing-form-top .btn-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.1rem;padding:4px;flex:0 0 auto}
+  .rec-ing-form-top .btn-rm:hover{color:var(--danger)}
+  .rec-ing-tipo{display:flex;gap:6px}
+  .rec-ing-tipo button{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:5px;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;transition:.15s}
+  .rec-ing-tipo button.active{background:var(--brand-soft);color:var(--brand);border-color:#EBD6E0}
+  .btn-add-rec-ing{background:none;border:1px dashed var(--line);border-radius:9px;padding:8px 12px;font-size:.84rem;color:var(--muted);cursor:pointer;width:100%;font-family:inherit;transition:.15s;margin-bottom:4px}
+  .btn-add-rec-ing:hover{border-color:var(--brand);color:var(--brand)}
+  .rec-costo-preview{background:var(--mint-soft);border:1px solid #C7E5D9;border-radius:10px;padding:9px 12px;font-size:.88rem;color:var(--mint);font-weight:600;margin-top:4px;min-height:36px}
+
+  /* Categorías toolbar */
+  .cat-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  .cat-chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:6px 12px;border-radius:999px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.15s}
+  .cat-chip:hover{color:var(--ink)}
+  .cat-chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .act.precio{background:var(--mint-soft);color:var(--mint);border-color:#C7E5D9}
+  .act.precio:hover{background:#d3ebe0}
+
+  /* Sheet guardar copia receta */
+  .mult-copia-info{font-size:.85rem;color:var(--muted);margin:-6px 0 14px;line-height:1.5}
+
+  /* Ítems de pedido */
+  .items-section{margin-top:10px;padding:9px 11px;background:#FBF6F1;border:1px solid var(--line);border-radius:10px}
+  .items-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+  .items-label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .items-progreso{font-size:.75rem;color:var(--mint);font-weight:600}
+  .items-progreso.completo{color:var(--mint)}
+  .item-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+  .item-row:last-child{border-bottom:none;padding-bottom:0}
+  .item-check{width:18px;height:18px;accent-color:var(--mint);cursor:pointer;flex:0 0 auto}
+  .item-nombre{flex:1;font-size:.88rem;color:var(--ink)}
+  .item-row.entregado .item-nombre{text-decoration:line-through;color:var(--muted)}
+  .item-cant{font-size:.78rem;color:var(--muted);white-space:nowrap}
+  .item-estado-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:99px;white-space:nowrap}
+  .item-estado-badge.listo{background:#FBF6F1;color:var(--amber);border:1px solid #EAD8BD}
+  .item-estado-badge.entregado{background:var(--mint-soft);color:var(--mint)}
+  .act.items{background:#F1EBF5;color:#5E2A8A;border-color:#DDD0EB}
+  .act.items:hover{background:#E8DDF3}
+
+  /* Modal de ítems inline en el form */
+  .items-form-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+  .item-form-row{display:flex;gap:7px;align-items:center}
+  .item-form-row input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.88rem;font-family:inherit;color:var(--ink);background:var(--bg)}
+  .item-form-row input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
+  .item-form-row .inp-cant{max-width:72px}
+  .item-form-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.1rem;padding:4px;line-height:1;flex:0 0 auto}
+  .item-form-row .btn-rm:hover{color:var(--danger)}
+  .btn-add-item{background:none;border:1px dashed var(--line);border-radius:9px;padding:8px 12px;font-size:.84rem;color:var(--muted);cursor:pointer;width:100%;font-family:inherit;transition:.15s}
+  .btn-add-item:hover{border-color:var(--brand);color:var(--brand)}
+
+  /* Sheet de gestión de ítems */
+  .item-sheet-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .item-sheet-row:last-child{border-bottom:none}
+  .item-sheet-check{width:20px;height:20px;accent-color:var(--mint);cursor:pointer;flex:0 0 auto}
+  .item-sheet-info{flex:1}
+  .item-sheet-nombre{font-size:.95rem;font-weight:500;color:var(--ink)}
+  .item-sheet-row.entregado .item-sheet-nombre{text-decoration:line-through;color:var(--muted)}
+  .item-sheet-cant{font-size:.8rem;color:var(--muted)}
+  .item-listo-btn{font-size:.76rem;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+  .item-listo-btn.es-listo{background:var(--amber-soft);color:var(--amber);border-color:#EAD8BD}
+  .item-listo-btn.es-entregado{background:var(--mint-soft);color:var(--mint);border-color:#C7E5D9}
+  .item-listo-btn:hover{opacity:.8}
+  .items-resumen-bar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0 6px}
+  .items-resumen-fill{height:100%;background:var(--mint);border-radius:99px;transition:.3s}
+  .items-resumen-texto{font-size:.8rem;color:var(--muted);margin-bottom:14px}
+
+  /* Cobro parcial */
+  .cobro-parcial-bar{margin-top:10px;padding:9px 11px;background:#FBF6F1;border:1px solid var(--line);border-radius:10px}
+  .cobro-parcial-label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+  .cobro-bar-outer{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+  .cobro-bar-inner{height:100%;background:var(--mint);border-radius:99px;transition:.3s}
+  .cobro-nums{display:flex;justify-content:space-between;margin-top:5px;font-size:.76rem}
+  .cobro-cobrado{color:var(--mint);font-weight:600}
+  .cobro-restante{color:var(--brand);font-weight:600}
+  .cobro-historial{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .cobro-chip{font-size:.72rem;background:var(--mint-soft);color:var(--mint);border-radius:99px;padding:3px 9px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+  .cobro-chip button{background:none;border:none;cursor:pointer;color:var(--mint);font-size:.8rem;padding:0;line-height:1;opacity:.7}
+  .cobro-chip button:hover{opacity:1;color:var(--danger)}
+  .act.parcial{background:var(--brand-soft);color:var(--brand);border-color:#EBD6E0}
+  .act.parcial:hover{background:#EDD9E7;border-color:#D9BFD0}
+
   /* Toast */
   .toast{
     position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
@@ -258,7 +403,7 @@
   <div class="auth-card">
     <div class="auth-brand">
       <div class="brand-mark" aria-hidden="true"></div>
-      <div><div class="brand-name">FelSol</div><div class="brand-sub">Gestor de pedidos</div></div>
+      <div><div class="brand-name">Dulcero</div><div class="brand-sub">Tus pedidos, ordenados</div></div>
     </div>
 
     <!-- Iniciar sesión -->
@@ -287,13 +432,18 @@
   <div class="top-inner">
     <div class="brand-mark" aria-hidden="true"></div>
     <div>
-      <div class="brand-name">FelSol</div>
-      <div class="brand-sub">Gestor de pedidos</div>
+      <div class="brand-name">Dulcero</div>
+      <div class="brand-sub">Tus pedidos, ordenados</div>
     </div>
     <div class="top-spacer"></div>
     <span class="sync-status" id="syncStatus" title="Estado de guardado"></span>
     <button class="icon-btn" id="menuBtn" title="Datos y sincronización" aria-label="Menú">⋯</button>
   </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-view="pedidos">🧾 Pedidos</button>
+    <button class="nav-tab" data-view="ingredientes">🥚 Ingredientes</button>
+    <button class="nav-tab" data-view="recetas">📋 Recetas</button>
+  </nav>
 </header>
 
 <div class="menu" id="menu">
@@ -332,6 +482,9 @@
 
 <div class="wrap">
 
+<!-- VISTA: PEDIDOS -->
+<div class="vista active" id="vista-pedidos">
+
   <section class="stats" id="stats"></section>
 
   <div class="toolbar">
@@ -351,7 +504,30 @@
   </div>
 
   <section class="list" id="list"></section>
-</div>
+
+</div><!-- /vista-pedidos -->
+
+<!-- VISTA: INGREDIENTES -->
+<div class="vista" id="vista-ingredientes">
+  <div class="toolbar">
+    <button class="btn-primary" id="newIngBtn"><span class="plus">+</span> Nuevo ingrediente</button>
+    <input class="search" id="search-ing" type="text" placeholder="Buscar ingrediente…" autocomplete="off">
+  </div>
+  <div class="cat-toolbar" id="cat-ing-toolbar"></div>
+  <div id="ing-list"></div>
+</div><!-- /vista-ingredientes -->
+
+<!-- VISTA: RECETAS -->
+<div class="vista" id="vista-recetas">
+  <div class="toolbar">
+    <button class="btn-primary" id="newRecBtn"><span class="plus">+</span> Nueva receta</button>
+    <input class="search" id="search-rec" type="text" placeholder="Buscar receta…" autocomplete="off">
+  </div>
+  <div class="cat-toolbar" id="cat-rec-toolbar"></div>
+  <div id="rec-list"></div>
+</div><!-- /vista-recetas -->
+
+</div><!-- /wrap -->
 
 <!-- Modal nuevo/editar -->
 <div class="overlay" id="overlay">
@@ -361,10 +537,6 @@
       <label for="f-cliente">Cliente</label>
       <input id="f-cliente" type="text" placeholder="Nombre de quien lo pidió" autocomplete="off">
       <div class="err" id="err-cliente">Poné el nombre del cliente.</div>
-    </div>
-    <div class="field">
-      <label for="f-detalle">¿Qué pidió?</label>
-      <input id="f-detalle" type="text" placeholder="Ej: 2 docenas de alfajores de maicena" autocomplete="off">
     </div>
     <div class="field">
       <label for="f-tel">Teléfono / WhatsApp <span class="opt">(opcional)</span></label>
@@ -389,6 +561,11 @@
       </div>
     </div>
     <div class="field">
+      <label>Artículos / ítems <span class="opt">(opcional)</span></label>
+      <div class="items-form-list" id="items-form-list"></div>
+      <button type="button" class="btn-add-item" id="btn-add-item">+ Agregar artículo</button>
+    </div>
+    <div class="field">
       <label for="f-nota">Nota <span class="opt">(opcional)</span></label>
       <textarea id="f-nota" placeholder="Seña, dirección, aclaraciones…"></textarea>
     </div>
@@ -406,7 +583,7 @@
     <p class="mes-hint">Conectá tu repositorio privado para usar la app en varios dispositivos. Para que en los demás dispositivos alcance solo la contraseña, el token tiene que tener permiso <b>Contents (lectura y escritura)</b> sobre <b>los dos repos</b>: el privado de datos y el público de la app. Se guarda cifrado.</p>
     <div class="field-row">
       <div class="field"><label for="gh-owner">Usuario de GitHub</label><input id="gh-owner" type="text" placeholder="tu-usuario" autocomplete="off"></div>
-      <div class="field"><label for="gh-repo">Repositorio</label><input id="gh-repo" type="text" placeholder="FelSol-datos" autocomplete="off"></div>
+      <div class="field"><label for="gh-repo">Repositorio</label><input id="gh-repo" type="text" placeholder="dulcero-datos" autocomplete="off"></div>
     </div>
     <div class="field-row">
       <div class="field"><label for="gh-path">Archivo</label><input id="gh-path" type="text" placeholder="pedidos.json" autocomplete="off"></div>
@@ -448,17 +625,169 @@
   </div>
 </div>
 
+<!-- Sheet nuevo/editar ingrediente -->
+<div class="overlay" id="overlayIng">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ingTitle" style="max-width:460px">
+    <h2 id="ingTitle">Nuevo ingrediente</h2>
+    <div class="field">
+      <label for="f-ing-nombre">Nombre</label>
+      <input id="f-ing-nombre" type="text" placeholder="Ej: Dulce de leche" autocomplete="off">
+      <div class="err" id="err-ing-nombre">Poné el nombre del ingrediente.</div>
+    </div>
+    <div class="field">
+      <label for="f-ing-cat">Categoría</label>
+      <input id="f-ing-cat" type="text" placeholder="Ej: Lácteos, Secos, Frescos…" list="ing-cats-list" autocomplete="off">
+      <datalist id="ing-cats-list"></datalist>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-ing-cant">Cantidad comprada</label>
+        <input id="f-ing-cant" type="number" inputmode="decimal" min="0.001" step="any" placeholder="Ej: 3">
+        <div class="err" id="err-ing-cant">Ingresá una cantidad válida.</div>
+      </div>
+      <div class="field">
+        <label for="f-ing-unidad">Unidad</label>
+        <select id="f-ing-unidad">
+          <option value="g">g (gramos)</option>
+          <option value="kg" selected>kg (kilogramos)</option>
+          <option value="ml">ml (mililitros)</option>
+          <option value="l">l (litros)</option>
+          <option value="u">u (unidades)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-ing-precio">Costo ($)</label>
+      <input id="f-ing-precio" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+      <div class="err" id="err-ing-precio">Ingresá un costo válido.</div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelIng">Cancelar</button>
+      <button class="btn-primary" id="saveIng" style="justify-content:center">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet actualizar precio ingrediente -->
+<div class="overlay" id="overlayPrecio">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="precioTitle" style="max-width:400px">
+    <h2 id="precioTitle">Actualizar precio</h2>
+    <p id="precio-actual-info" style="font-size:.88rem;color:var(--muted);margin:-6px 0 14px"></p>
+    <div class="field">
+      <label for="f-precio-nuevo">Nuevo precio ($)</label>
+      <input id="f-precio-nuevo" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+      <div class="err" id="err-precio">Ingresá un precio válido.</div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelPrecio">Cancelar</button>
+      <button class="btn-primary" id="savePrecio" style="justify-content:center">Actualizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet nueva/editar receta -->
+<div class="overlay" id="overlayRec">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="recTitle">
+    <h2 id="recTitle">Nueva receta</h2>
+    <div class="field">
+      <label for="f-rec-nombre">Nombre de la receta</label>
+      <input id="f-rec-nombre" type="text" placeholder="Ej: Alfajores de maicena" autocomplete="off">
+      <div class="err" id="err-rec-nombre">Poné el nombre de la receta.</div>
+    </div>
+    <div class="field">
+      <label for="f-rec-cat">Categoría</label>
+      <input id="f-rec-cat" type="text" placeholder="Ej: Masas, Rellenos, Tortas…" list="rec-cats-list" autocomplete="off">
+      <datalist id="rec-cats-list"></datalist>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-rec-rinde">Rinde <span class="opt">(opcional)</span></label>
+        <input id="f-rec-rinde" type="number" inputmode="decimal" min="0" step="any" placeholder="Ej: 24">
+      </div>
+      <div class="field">
+        <label for="f-rec-rinde-unit">Unidad del rinde</label>
+        <input id="f-rec-rinde-unit" type="text" placeholder="Ej: unidades, porciones" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-rec-mdo">Mano de obra ($) <span class="opt">(opcional)</span></label>
+      <input id="f-rec-mdo" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+    </div>
+    <div class="field">
+      <label>Ingredientes</label>
+      <div class="rec-ing-form-list" id="rec-ing-form-list"></div>
+      <button type="button" class="btn-add-rec-ing" id="btn-add-rec-ing">+ Agregar ingrediente</button>
+      <div class="rec-costo-preview" id="rec-costo-preview">Cargá ingredientes para ver el costo estimado</div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelRec">Cancelar</button>
+      <button class="btn-primary" id="saveRec" style="justify-content:center">Guardar receta</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet guardar copia escalada -->
+<div class="overlay" id="overlayCopia">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="copiaTitle" style="max-width:420px">
+    <h2 id="copiaTitle">Guardar como nueva receta</h2>
+    <p class="mult-copia-info" id="copia-info"></p>
+    <div class="field">
+      <label for="f-copia-nombre">Nombre de la copia</label>
+      <input id="f-copia-nombre" type="text" placeholder="" autocomplete="off">
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelCopia">Cancelar</button>
+      <button class="btn-primary" id="saveCopia" style="justify-content:center">Guardar copia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet gestión de ítems -->
+<div class="overlay" id="overlayItems">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="itemsTitle" style="max-width:460px">
+    <h2 id="itemsTitle">Artículos del pedido</h2>
+    <p id="items-cliente-info" style="font-size:.88rem;color:var(--muted);margin:-8px 0 10px"></p>
+    <div class="items-resumen-bar"><div class="items-resumen-fill" id="items-resumen-fill"></div></div>
+    <p class="items-resumen-texto" id="items-resumen-texto"></p>
+    <div id="items-sheet-list"></div>
+    <div class="sheet-actions" style="margin-top:16px">
+      <button class="btn-primary" id="cerrarItems" style="justify-content:center;flex:1">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet cobro parcial -->
+<div class="overlay" id="overlayParcial">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="parcialTitle" style="max-width:420px">
+    <h2 id="parcialTitle">Registrar cobro parcial</h2>
+    <p id="parcial-info" style="font-size:.88rem;color:var(--muted);margin:-6px 0 14px"></p>
+    <div class="field">
+      <label for="f-parcial">Monto cobrado ahora</label>
+      <input id="f-parcial" type="number" inputmode="decimal" min="0.01" step="any" placeholder="0">
+      <div class="err" id="err-parcial">Ingresá un monto mayor a cero.</div>
+    </div>
+    <div class="field">
+      <label for="f-parcial-nota">Nota <span class="opt">(opcional)</span></label>
+      <input id="f-parcial-nota" type="text" placeholder="Ej: seña, cuota 1…" autocomplete="off">
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelParcial">Cancelar</button>
+      <button class="btn-primary" id="guardarParcial" style="justify-content:center">Guardar cobro</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 /* =========================================================================
-   FelSol — gestión de pedidos para venta de dulces
+   Dulcero — gestión de pedidos para venta de dulces
    Guarda los datos de forma privada y persistente. Sin servidores externos.
    ========================================================================= */
 
 // ====================== Almacenamiento + cifrado + sincronización ======================
-const VAULT_KEY = 'FelSol:vault';   // { v, salt, gh:{iv,ct} }  -> token de GitHub cifrado
-const CACHE_KEY = 'FelSol:cache';   // { iv, ct }               -> pedidos cifrados
+const VAULT_KEY = 'dulcero:vault';   // { v, salt, gh:{iv,ct} }  -> token de GitHub cifrado
+const CACHE_KEY = 'dulcero:cache';   // { iv, ct }               -> pedidos cifrados
 
 function localOk(){ try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); return true; }catch(e){ return false; } }
 const tieneLocal = localOk();
@@ -481,7 +810,7 @@ async function derivarClave(pass, salt){
 }
 
 // ---- Recordar sesión: guarda la clave en el dispositivo para no pedir la contraseña en cada recarga ----
-const SESS_KEY = 'FelSol:sesion';
+const SESS_KEY = 'dulcero:sesion';
 function localSess(s){ try{ return s ? sessionStorage : localStorage; }catch(e){ return null; } }
 async function guardarSesion(persistente){
   if(!appKey) return;
@@ -551,7 +880,7 @@ async function actualizarGhEnVault(conf){
 function borrarVault(){ try{ if(tieneLocal){ localStorage.removeItem(VAULT_KEY); localStorage.removeItem(CACHE_KEY); } }catch(e){} _vaultMem=null; _memEnc=''; gh=null; appKey=null; ghSha=null; vaultSha=null; }
 
 // ---- Acceso compartido entre dispositivos: vault.json en el repo público de la app ----
-// Deriva owner/repo del propio dominio github.io (ej: usuario.github.io/FelSol/)
+// Deriva owner/repo del propio dominio github.io (ej: usuario.github.io/dulcero/)
 function appRepoURL(){
   const m = location.hostname.match(/^([^.]+)\.github\.io$/);
   if(!m) return null;
@@ -686,8 +1015,104 @@ function ghPushDebounced(){
 async function cargar(){ return await leerCacheCifrada(); }              // arranque desde caché cifrada
 async function guardar(){ await escribirCacheCifrada(); ghPushDebounced(); } // guarda local cifrado y sube a GitHub
 
+// ---- Ingredientes y Recetas: caché cifrada separada ----
+const CACHE_ING_KEY = 'dulcero:cache:ing';
+const CACHE_REC_KEY = 'dulcero:cache:rec';
+
+async function leerCacheIng(){
+  if(!appKey) return [];
+  try{
+    const raw = tieneLocal ? localStorage.getItem(CACHE_ING_KEY) : null;
+    if(!raw) return [];
+    const arr = await descifrar(appKey, JSON.parse(raw));
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){ return []; }
+}
+async function escribirCacheIng(){
+  if(!appKey) return;
+  try{
+    const s = JSON.stringify(await cifrar(appKey, ingredientes));
+    if(tieneLocal) localStorage.setItem(CACHE_ING_KEY, s);
+  }catch(e){}
+}
+async function leerCacheRec(){
+  if(!appKey) return [];
+  try{
+    const raw = tieneLocal ? localStorage.getItem(CACHE_REC_KEY) : null;
+    if(!raw) return [];
+    const arr = await descifrar(appKey, JSON.parse(raw));
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){ return []; }
+}
+async function escribirCacheRec(){
+  if(!appKey) return;
+  try{
+    const s = JSON.stringify(await cifrar(appKey, recetas));
+    if(tieneLocal) localStorage.setItem(CACHE_REC_KEY, s);
+  }catch(e){}
+}
+
+// Pull/push para ingredientes y recetas (archivos separados en GitHub)
+function ghUrlExtra(filename){
+  const u = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${encodeURI(filename)}`;
+  return { base: u, conRef: `${u}?ref=${encodeURIComponent(gh.branch||'main')}` };
+}
+let ghShaIng = null, ghShaRec = null;
+
+async function ghPullExtra(filename, sha, onData){
+  if(!ghOk()) return {ok:false};
+  const {conRef} = ghUrlExtra(filename);
+  try{
+    const r = await fetch(conRef, {headers: ghHeaders(), cache:'no-store'});
+    if(r.status===404) return {ok:true, nuevo:true};
+    if(!r.ok) return {ok:false};
+    const j = await r.json();
+    if(sha) sha.val = j.sha; else sha = {val:j.sha};
+    const arr = JSON.parse(j.content ? b64Utf8(j.content) : '[]');
+    if(onData) onData(Array.isArray(arr)?arr:[], j.sha);
+    return {ok:true};
+  }catch(e){ return {ok:false}; }
+}
+
+async function ghPushExtra(filename, shaRef, datos){
+  if(!ghOk()) return;
+  const {base, conRef} = ghUrlExtra(filename);
+  const body = { message:`Actualiza ${filename} (${new Date().toLocaleString('es-AR')})`,
+                 content: utf8B64(JSON.stringify(datos, null, 2)), branch: gh.branch||'main' };
+  if(shaRef.val) body.sha = shaRef.val;
+  try{
+    let r = await fetch(base, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if(r.status===409||r.status===422){
+      const g = await fetch(conRef, {headers: ghHeaders(), cache:'no-store'});
+      if(g.ok){ const gj = await g.json(); shaRef.val = gj.sha; body.sha = shaRef.val; }
+      r = await fetch(base, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    }
+    if(r.ok){ const j = await r.json(); if(j.content?.sha) shaRef.val = j.content.sha; }
+  }catch(e){}
+}
+
+const ghShaIngRef = {val:null}, ghShaRecRef = {val:null};
+let pushIngT = null, pushRecT = null;
+
+async function guardarIng(){
+  await escribirCacheIng();
+  if(ghOk()){
+    clearTimeout(pushIngT);
+    pushIngT = setTimeout(()=>ghPushExtra('materias.json', ghShaIngRef, ingredientes), 800);
+  }
+}
+async function guardarRec(){
+  await escribirCacheRec();
+  if(ghOk()){
+    clearTimeout(pushRecT);
+    pushRecT = setTimeout(()=>ghPushExtra('recetas.json', ghShaRecRef, recetas), 800);
+  }
+}
+
 // ---- Estado ----
 let pedidos = [];
+let ingredientes = [];
+let recetas = [];
 let filtro = 'todos';
 let busqueda = '';
 let editandoId = null;
@@ -752,9 +1177,27 @@ function cerrarConfirm(val){
 }
 
 // ---- Render ----
+// Retorna cuánto se cobró (parcialmente) de un pedido pendiente
+function cobradoParcial(p){
+  if(!p.cobros || !p.cobros.length) return 0;
+  return p.cobros.reduce((s,c)=>s+c.monto,0);
+}
+function restantePedido(p){
+  return Math.max(0, p.monto - cobradoParcial(p));
+}
+
 function calcular(){
   let porCobrar = 0, cobrado = 0;
-  for(const p of pedidos){ (p.estado==='cobrado' ? (cobrado+=p.monto) : (porCobrar+=p.monto)); }
+  for(const p of pedidos){
+    if(p.estado==='cobrado'){
+      cobrado += p.monto;
+    } else {
+      // Lo pendiente es el remanente; lo ya parcialmente cobrado también suma a cobrado
+      const cp = cobradoParcial(p);
+      cobrado += cp;
+      porCobrar += p.monto - cp;
+    }
+  }
   return {porCobrar, cobrado, total:porCobrar+cobrado};
 }
 
@@ -784,7 +1227,7 @@ function visibles(){
   const q = busqueda.trim().toLowerCase();
   return pedidos
     .filter(p => filtro==='todos' ? true : p.estado===filtro)
-    .filter(p => !q || p.cliente.toLowerCase().includes(q) || (p.detalle||'').toLowerCase().includes(q))
+    .filter(p => !q || p.cliente.toLowerCase().includes(q) || (p.detalle||'').toLowerCase().includes(q) || (p.items||[]).some(it=>it.nombre.toLowerCase().includes(q)))
     .sort((a,b)=>{
       // pendientes primero, luego por entrega/creación más reciente
       if(a.estado!==b.estado) return a.estado==='cobrado' ? 1 : -1;
@@ -796,6 +1239,46 @@ function visibles(){
 function cardHTML(p){
   const cob = p.estado==='cobrado';
   const wa = waLink(p.telefono);
+  const cp = cobradoParcial(p);
+  const restante = p.monto - cp;
+  const pct = p.monto > 0 ? Math.min(100, Math.round(cp / p.monto * 100)) : 0;
+
+  // Barra de progreso de cobro parcial (solo si hay cobros parciales y no está completamente cobrado)
+  const barraHtml = (!cob && cp > 0) ? `
+    <div class="cobro-parcial-bar">
+      <div class="cobro-parcial-label">Cobrado parcialmente</div>
+      <div class="cobro-bar-outer"><div class="cobro-bar-inner" style="width:${pct}%"></div></div>
+      <div class="cobro-nums">
+        <span class="cobro-cobrado">✓ ${money(cp)} cobrado (${pct}%)</span>
+        <span class="cobro-restante">${money(restante)} restante</span>
+      </div>
+      ${p.cobros && p.cobros.length ? `<div class="cobro-historial">${p.cobros.map((c,i)=>`<span class="cobro-chip">${money(c.monto)}${c.nota?' · '+esc(c.nota):''}<button title="Quitar este cobro" data-act="quitarcobro" data-id="${p.id}" data-ci="${i}">×</button></span>`).join('')}</div>` : ''}
+    </div>` : '';
+
+  // Resumen de ítems
+  let itemsHtml = '';
+  if(p.items && p.items.length > 0){
+    const { entregados, listos, total, pct: pctIt } = progresoItems(p.items);
+    const pendItems = total - entregados - listos;
+    const todosEntregados = entregados === total;
+    const listosItems = p.items.filter(it=>it.estado==='listo');
+    const pendientesItems = p.items.filter(it=>it.estado==='pendiente');
+
+    itemsHtml = `<div class="items-section">
+      <div class="items-header">
+        <span class="items-label">Artículos</span>
+        <span class="items-progreso ${todosEntregados?'completo':''}">${entregados}/${total} entregado${total!==1?'s':''}</span>
+      </div>
+      ${p.items.map(it=>`
+        <div class="item-row ${it.estado==='entregado'?'entregado':''}">
+          <span class="item-nombre">${esc(it.nombre)}</span>
+          ${it.cant?`<span class="item-cant">${esc(it.cant)}</span>`:''}
+          ${it.estado==='listo'?`<span class="item-estado-badge listo">✓ Listo</span>`
+            : it.estado==='entregado'?`<span class="item-estado-badge entregado">Entregado</span>`:''}
+        </div>`).join('')}
+    </div>`;
+  }
+
   return `<div class="card ${cob?'cobrado':''}">
     <div class="card-row">
       <div>
@@ -811,10 +1294,14 @@ function cardHTML(p){
       ${p.telefono ? `<span class="fecha">📞 ${esc(p.telefono)}</span>` : ''}
     </div>
     ${p.nota ? `<div class="nota">${esc(p.nota)}</div>` : ''}
+    ${itemsHtml}
+    ${barraHtml}
     <div class="card-actions">
       ${cob
         ? `<button class="act reabrir" data-act="toggle" data-id="${p.id}">↩ Marcar por cobrar</button>`
-        : `<button class="act cobrar" data-act="toggle" data-id="${p.id}">✓ Cobré</button>`}
+        : `<button class="act cobrar" data-act="toggle" data-id="${p.id}">✓ Cobrado total</button>
+           <button class="act parcial" data-act="parcial" data-id="${p.id}">+ Cobro parcial</button>`}
+      ${p.items && p.items.length ? `<button class="act items" data-act="items" data-id="${p.id}">📦 Artículos</button>` : ''}
       ${wa ? `<a class="act wa" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}
       <button class="act" data-act="edit" data-id="${p.id}">Editar</button>
       <button class="act del" data-act="del" data-id="${p.id}">Borrar</button>
@@ -878,10 +1365,180 @@ function renderList(){
 
 function render(){ renderStats(); renderList(); }
 
+// ---- Ítems de pedido ----
+// Estado de ítems: { nombre, cant, estado } — estado: 'pendiente'|'listo'|'entregado'
+
+function itemsFormHTML(items){
+  const list = $('#items-form-list'); if(!list) return;
+  list.innerHTML = (items||[]).map((it,i)=>`
+    <div class="item-form-row" data-ii="${i}">
+      <input type="text" class="inp-nombre" placeholder="Ej: alfajores de maicena" value="${esc(it.nombre||'')}" autocomplete="off">
+      <input type="text" class="inp-cant inp-cant" placeholder="Cant." value="${esc(it.cant||'')}" autocomplete="off" style="max-width:72px">
+      <button type="button" class="btn-rm" data-rm="${i}" title="Quitar artículo">×</button>
+    </div>`).join('');
+}
+
+function leerItemsForm(){
+  const rows = document.querySelectorAll('#items-form-list .item-form-row');
+  const result = [];
+  rows.forEach(row=>{
+    const nombre = row.querySelector('.inp-nombre').value.trim();
+    const cant   = row.querySelector('.inp-cant').value.trim();
+    if(nombre) result.push({ nombre, cant, estado:'pendiente' });
+  });
+  return result;
+}
+
+function agregarItemForm(){
+  const list = $('#items-form-list');
+  const idx = list.children.length;
+  const div = document.createElement('div');
+  div.className = 'item-form-row'; div.dataset.ii = idx;
+  div.innerHTML = `<input type="text" class="inp-nombre" placeholder="Ej: alfajores de maicena" autocomplete="off">
+    <input type="text" class="inp-cant" placeholder="Cant." autocomplete="off" style="max-width:72px">
+    <button type="button" class="btn-rm" data-rm="${idx}" title="Quitar artículo">×</button>`;
+  list.appendChild(div);
+  div.querySelector('.inp-nombre').focus();
+}
+
+$('#items-form-list').addEventListener('click', e=>{
+  if(e.target.dataset.rm !== undefined){
+    e.target.closest('.item-form-row').remove();
+  }
+});
+$('#btn-add-item').addEventListener('click', agregarItemForm);
+
+// ---- Sheet de gestión de ítems ----
+let itemsId = null;
+
+function progresoItems(items){
+  if(!items || !items.length) return { entregados:0, listos:0, total:0, pct:0 };
+  const total = items.length;
+  const entregados = items.filter(it=>it.estado==='entregado').length;
+  const listos     = items.filter(it=>it.estado==='listo').length;
+  const pct = Math.round((entregados / total) * 100);
+  return { entregados, listos, total, pct };
+}
+
+function renderItemsSheet(){
+  const p = pedidos.find(x=>x.id===itemsId); if(!p) return;
+  const items = p.items || [];
+  const { entregados, listos, total, pct } = progresoItems(items);
+
+  $('#items-resumen-fill').style.width = pct + '%';
+  $('#items-resumen-texto').textContent = total === 0
+    ? 'Este pedido no tiene artículos cargados.'
+    : `${entregados} de ${total} entregado${total!==1?'s':''} · ${listos} listo${listos!==1?'s':''} · ${total-entregados-listos} pendiente${(total-entregados-listos)!==1?'s':''}`;
+
+  $('#items-sheet-list').innerHTML = items.length === 0
+    ? `<p style="color:var(--muted);font-size:.9rem;text-align:center;padding:16px 0">Editá el pedido para agregar artículos.</p>`
+    : items.map((it,i)=>{
+        const ciclo = it.estado==='pendiente'?'listo': it.estado==='listo'?'entregado':'pendiente';
+        const lblBtn = it.estado==='pendiente'?'Marcar listo': it.estado==='listo'?'Marcar entregado':'↩ Pendiente';
+        const clsBtn = it.estado==='listo'?'es-listo': it.estado==='entregado'?'es-entregado':'';
+        return `<div class="item-sheet-row ${it.estado==='entregado'?'entregado':''}">
+          <input type="checkbox" class="item-sheet-check" ${it.estado==='entregado'?'checked':''} data-iact="toggle-check" data-ii="${i}" title="Marcar entregado">
+          <div class="item-sheet-info">
+            <div class="item-sheet-nombre">${esc(it.nombre)}</div>
+            ${it.cant ? `<div class="item-sheet-cant">Cantidad: ${esc(it.cant)}</div>` : ''}
+          </div>
+          <button class="item-listo-btn ${clsBtn}" data-iact="ciclar" data-ii="${i}">${lblBtn}</button>
+        </div>`;
+      }).join('');
+}
+
+function abrirItems(id){
+  const p = pedidos.find(x=>x.id===id); if(!p) return;
+  itemsId = id;
+  $('#itemsTitle').textContent = `Artículos — ${p.cliente}`;
+  $('#items-cliente-info').textContent = p.detalle || '';
+  renderItemsSheet();
+  $('#overlayItems').classList.add('open');
+}
+function cerrarItemsSheet(){ $('#overlayItems').classList.remove('open'); itemsId = null; }
+
+$('#items-sheet-list').addEventListener('click', async e=>{
+  const btn = e.target.closest('[data-iact]'); if(!btn) return;
+  const p = pedidos.find(x=>x.id===itemsId); if(!p || !p.items) return;
+  const i = Number(btn.dataset.ii);
+  const act = btn.dataset.iact;
+  if(act==='ciclar'){
+    const ciclo = {pendiente:'listo', listo:'entregado', entregado:'pendiente'};
+    p.items[i].estado = ciclo[p.items[i].estado] || 'pendiente';
+  } else if(act==='toggle-check'){
+    p.items[i].estado = btn.checked ? 'entregado' : 'pendiente';
+  }
+  await guardar(); renderItemsSheet(); render();
+});
+
+$('#cerrarItems').addEventListener('click', cerrarItemsSheet);
+$('#overlayItems').addEventListener('click', e=>{ if(e.target.id==='overlayItems') cerrarItemsSheet(); });
+
+// ---- Cobro parcial ----
+let parcialId = null;
+
+function abrirParcial(id){
+  const p = pedidos.find(x=>x.id===id); if(!p) return;
+  parcialId = id;
+  const cp = cobradoParcial(p);
+  const restante = p.monto - cp;
+  $('#parcialTitle').textContent = `Cobro parcial — ${p.cliente}`;
+  $('#parcial-info').textContent = `Total: ${money(p.monto)} · Ya cobrado: ${money(cp)} · Restante: ${money(restante)}`;
+  $('#f-parcial').value = '';
+  $('#f-parcial-nota').value = '';
+  $('#err-parcial').style.display = 'none';
+  $('#overlayParcial').classList.add('open');
+  setTimeout(()=>$('#f-parcial').focus(), 50);
+}
+function cerrarParcial(){ $('#overlayParcial').classList.remove('open'); parcialId = null; }
+
+async function guardarParcial(){
+  const p = pedidos.find(x=>x.id===parcialId); if(!p) return;
+  const montoRaw = $('#f-parcial').value;
+  const monto = parseFloat(montoRaw);
+  if(!montoRaw || isNaN(monto) || monto <= 0){
+    $('#err-parcial').style.display = 'block'; return;
+  }
+  $('#err-parcial').style.display = 'none';
+  if(!p.cobros) p.cobros = [];
+  const nota = $('#f-parcial-nota').value.trim();
+  p.cobros.push({ monto, nota, fecha: hoyISO() });
+
+  // Si la suma de cobros parciales cubre o supera el total, marcamos como cobrado
+  const totalCobrado = cobradoParcial(p);
+  if(totalCobrado >= p.monto){
+    p.estado = 'cobrado';
+    cerrarParcial();
+    toast('¡Pedido cobrado completamente! 🎉');
+  } else {
+    cerrarParcial();
+    toast(`Cobro parcial registrado · Restante: ${money(p.monto - totalCobrado)}`);
+  }
+  await guardar(); render();
+}
+
+async function quitarCobro(id, idx){
+  const p = pedidos.find(x=>x.id===id); if(!p || !p.cobros) return;
+  const monto = p.cobros[idx]?.monto;
+  const ok = await confirmar({
+    titulo: 'Quitar cobro parcial',
+    mensaje: `¿Quitar el cobro de ${money(monto)}?`,
+    ok: 'Quitar', peligro: true
+  });
+  if(!ok) return;
+  p.cobros.splice(idx, 1);
+  await guardar(); render(); toast('Cobro parcial eliminado');
+}
+
 // ---- Acciones sobre pedidos ----
 async function toggleEstado(id){
   const p = pedidos.find(x=>x.id===id); if(!p) return;
-  p.estado = p.estado==='cobrado' ? 'pendiente' : 'cobrado';
+  if(p.estado==='cobrado'){
+    p.estado = 'pendiente';
+    // Al reabrir, conservamos los cobros parciales (no los borramos)
+  } else {
+    p.estado = 'cobrado';
+  }
   await guardar(); render();
   toast(p.estado==='cobrado' ? '¡Pedido cobrado! 🎉' : 'Marcado como por cobrar');
 }
@@ -903,11 +1560,11 @@ function abrirModal(id){
   const p = id ? pedidos.find(x=>x.id===id) : null;
   $('#sheetTitle').textContent = p ? 'Editar pedido' : 'Nuevo pedido';
   $('#f-cliente').value = p ? p.cliente : '';
-  $('#f-detalle').value = p ? (p.detalle||'') : '';
   $('#f-tel').value     = p ? (p.telefono||'') : '';
   $('#f-monto').value   = p ? p.monto : '';
   $('#f-fecha').value   = p ? (p.entrega||'') : '';
   $('#f-nota').value    = p ? (p.nota||'') : '';
+  itemsFormHTML(p ? (p.items||[]) : []);
   setEstadoForm(p ? p.estado : 'pendiente');
   $('#err-cliente').style.display='none'; $('#err-monto').style.display='none';
   $('#overlay').classList.add('open');
@@ -933,11 +1590,22 @@ async function guardarPedido(){
   const datos = {
     cliente,
     telefono: $('#f-tel').value.trim(),
-    detalle: $('#f-detalle').value.trim(),
     monto,
     entrega: $('#f-fecha').value || '',
     nota: $('#f-nota').value.trim(),
     estado: estadoForm,
+    items: (() => {
+      const nuevos = leerItemsForm();
+      if(editandoId){
+        // Preservar el estado (listo/entregado) de los ítems que ya existían
+        const viejos = (pedidos.find(x=>x.id===editandoId)?.items)||[];
+        return nuevos.map(it=>{
+          const viejo = viejos.find(v=>v.nombre===it.nombre);
+          return viejo ? {...it, estado: viejo.estado} : it;
+        });
+      }
+      return nuevos;
+    })(),
   };
   if(editandoId){
     const p = pedidos.find(x=>x.id===editandoId);
@@ -972,25 +1640,36 @@ function generarReporte(){
     .sort((a,b)=> (a.creado||'') < (b.creado||'') ? -1 : 1);
 
   const facturado = delMes.reduce((s,p)=>s+p.monto,0);
-  const cobrado   = delMes.filter(p=>p.estado==='cobrado').reduce((s,p)=>s+p.monto,0);
+  const cobrado   = delMes.reduce((s,p)=>{
+    if(p.estado==='cobrado') return s+p.monto;
+    return s + cobradoParcial(p);
+  }, 0);
   const porCobrar = facturado - cobrado;
   const nCob = delMes.filter(p=>p.estado==='cobrado').length;
   const nPend = delMes.length - nCob;
 
-  // Pendientes agrupados por cliente (quién te debe)
+  // Pendientes agrupados por cliente (quién te debe) — considerando cobros parciales
   const deudas = {};
-  delMes.filter(p=>p.estado!=='cobrado').forEach(p=>{ deudas[p.cliente]=(deudas[p.cliente]||0)+p.monto; });
-  const deudores = Object.entries(deudas).sort((a,b)=>b[1]-a[1]);
+  delMes.filter(p=>p.estado!=='cobrado').forEach(p=>{ 
+    const rest = restantePedido(p);
+    if(rest > 0) deudas[p.cliente]=(deudas[p.cliente]||0)+rest;
+  });
 
-  const filas = delMes.map(p=>`
+  const filas = delMes.map(p=>{
+    const cp = cobradoParcial(p);
+    const parcialTag = (!p.estado==='cobrado' && cp > 0)
+      ? `<span class="tag" style="background:#E2F2EC;color:#15795C;margin-left:4px">+${money(cp)}</span>` : '';
+    return `
     <tr class="${p.estado==='cobrado'?'r-cob':'r-pend'}">
       <td>${esc(p.cliente)}</td>
       <td>${esc(p.detalle||'—')}</td>
       <td class="c">${fechaCorta(p.creado)}</td>
       <td class="c">${p.entrega?fechaCorta(p.entrega):'—'}</td>
-      <td class="r">${money(p.monto)}</td>
-      <td class="c"><span class="tag ${p.estado==='cobrado'?'t-cob':'t-pend'}">${p.estado==='cobrado'?'Cobrado':'Por cobrar'}</span></td>
-    </tr>`).join('');
+      <td class="r">${money(p.monto)}${p.estado!=='cobrado' && cp>0?`<br><small style="color:#15795C;font-size:10px">+${money(cp)} cobrado</small>`:''}</td>
+      <td class="c"><span class="tag ${p.estado==='cobrado'?'t-cob':'t-pend'}">${p.estado==='cobrado'?'Cobrado':cp>0?'Parcial':'Por cobrar'}</span></td>
+    </tr>`}).join('');
+
+  const deudores = Object.entries(deudas).sort((a,b)=>b[1]-a[1]);
 
   const cuerpo = delMes.length === 0
     ? `<p class="vacio">No hay pedidos registrados en ${mesLabel(clave)}.</p>`
@@ -1013,7 +1692,7 @@ function generarReporte(){
 
   const generadoEl = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
   const html = `<!DOCTYPE html><html lang="es-AR"><head><meta charset="UTF-8">
-  <title>Resumen ${mesLabel(clave)} · FelSol</title>
+  <title>Resumen ${mesLabel(clave)} · Dulcero</title>
   <style>
     @page{margin:18mm 16mm}
     *{box-sizing:border-box}
@@ -1044,11 +1723,11 @@ function generarReporte(){
     @media print{.tag,.rc.green,.rc.plum{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
   </style></head><body>
     <div class="head">
-      <div class="brand">FelSol<small>Resumen mensual</small></div>
+      <div class="brand">Dulcero<small>Resumen mensual</small></div>
       <div class="right"><b>${mesLabel(clave)}</b>Generado el ${generadoEl}</div>
     </div>
     ${cuerpo}
-    <div class="pie">Reporte generado con FelSol · ${generadoEl}</div>
+    <div class="pie">Reporte generado con Dulcero · ${generadoEl}</div>
   </body></html>`;
 
   // Imprimimos en un iframe oculto (sin ventanas emergentes), el usuario elige "Guardar como PDF"
@@ -1127,6 +1806,9 @@ async function desbloquear(){
     const res = await ghPull();
     if(res.ok) render();
     else if(res.reason === 'auth') toast('Revisá tu token de GitHub');
+    // Pull de ingredientes y recetas
+    await ghPullExtra('materias.json', ghShaIngRef, (arr,sha)=>{ ingredientes=arr; ghShaIngRef.val=sha; escribirCacheIng(); });
+    await ghPullExtra('recetas.json', ghShaRecRef, (arr,sha)=>{ recetas=arr; ghShaRecRef.val=sha; escribirCacheRec(); });
   }
   await escribirCacheCifrada();
 }
@@ -1136,7 +1818,10 @@ async function hacerLogin(){
   const ok = await abrirVault($('#lg-pass').value);
   if(ok){
     await guardarSesion($('#lg-recordar').checked);
-    pedidos = await cargar(); await desbloquear();
+    pedidos = await cargar();
+    ingredientes = await leerCacheIng();
+    recetas = await leerCacheRec();
+    await desbloquear();
   } else { $('#lg-err').textContent = 'Contraseña incorrecta.'; }
 }
 
@@ -1275,7 +1960,432 @@ $('#list').addEventListener('click', e=>{
   if(b.dataset.act==='toggle') toggleEstado(id);
   else if(b.dataset.act==='edit') abrirModal(id);
   else if(b.dataset.act==='del') borrar(id);
+  else if(b.dataset.act==='parcial') abrirParcial(id);
+  else if(b.dataset.act==='items') abrirItems(id);
+  else if(b.dataset.act==='quitarcobro') quitarCobro(id, Number(b.dataset.ci));
 });
+
+});
+
+// ====================== NAVEGACIÓN POR VISTAS ======================
+let vistaActual = 'pedidos';
+function cambiarVista(v){
+  vistaActual = v;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active', t.dataset.view===v));
+  document.querySelectorAll('.vista').forEach(el=>el.classList.toggle('active', el.id===`vista-${v}`));
+  if(v==='ingredientes') renderIngredientes();
+  if(v==='recetas') renderRecetas();
+}
+document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>cambiarVista(t.dataset.view)));
+
+// ====================== UTILIDADES INGREDIENTES ======================
+function precioActual(ing){ return ing.precios?.[ing.precios.length-1]?.precio ?? 0; }
+function precioPorUnidadBase(ing){
+  const p = precioActual(ing), c = ing.cantidad||1;
+  if(ing.unidad==='kg') return p/(c*1000);
+  if(ing.unidad==='l')  return p/(c*1000);
+  return p/c;
+}
+function unidadBase(u){ return u==='kg'?'g': u==='l'?'ml': u; }
+function costoIngrediente(ingId, cantidad, unidad){
+  const ing = ingredientes.find(x=>x.id===ingId); if(!ing) return 0;
+  const ppub = precioPorUnidadBase(ing);
+  const ub = unidadBase(ing.unidad);
+  let cantBase = cantidad;
+  if(unidad==='kg' && ub==='g') cantBase=cantidad*1000;
+  if(unidad==='l'  && ub==='ml') cantBase=cantidad*1000;
+  return ppub*cantBase;
+}
+function costoReceta(rec, visitados=new Set()){
+  if(visitados.has(rec.id)) return 0;
+  visitados.add(rec.id);
+  let total=0;
+  for(const i of (rec.ingredientes||[])){
+    if(i.tipo==='materia') total+=costoIngrediente(i.ref,i.cantidad,i.unidad);
+    else if(i.tipo==='receta'){const sub=recetas.find(x=>x.id===i.ref);if(sub)total+=costoReceta(sub,new Set(visitados))*(i.cantidad||1);}
+  }
+  return total+(rec.mdo||0);
+}
+function fechaDesdeUltimoRecalculo(ing){
+  if(!ing.precios||ing.precios.length<2) return false;
+  const ultimo=ing.precios[ing.precios.length-1];
+  const hace7=new Date();hace7.setDate(hace7.getDate()-7);
+  return new Date(ultimo.fecha)>=hace7;
+}
+function ingUsadaEnReceta(ingId){
+  return recetas.some(r=>(r.ingredientes||[]).some(i=>i.tipo==='materia'&&i.ref===ingId));
+}
+
+// ====================== RENDER INGREDIENTES ======================
+let busqIng='', filtroIngCat='todos';
+function renderIngredientes(){
+  const cats=[...new Set(ingredientes.map(i=>i.categoria||'Sin categoría'))].sort();
+  const ct=$('#cat-ing-toolbar');
+  ct.innerHTML=`<button class="cat-chip ${filtroIngCat==='todos'?'active':''}" data-c="todos">Todos</button>`
+    +cats.map(c=>`<button class="cat-chip ${filtroIngCat===c?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('#ing-cats-list').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
+  const q=busqIng.trim().toLowerCase();
+  const lista=ingredientes
+    .filter(i=>filtroIngCat==='todos'||(i.categoria||'Sin categoría')===filtroIngCat)
+    .filter(i=>!q||i.nombre.toLowerCase().includes(q)||(i.categoria||'').toLowerCase().includes(q))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const el=$('#ing-list');
+  if(!ingredientes.length){el.innerHTML=`<div class="empty"><div class="emoji">🥚</div><h3>No hay ingredientes</h3><p>Agregá tus materias primas con sus precios.</p></div>`;return;}
+  if(!lista.length){el.innerHTML=`<div class="empty"><div class="emoji">🔍</div><h3>Sin resultados</h3></div>`;return;}
+  el.innerHTML=lista.map(ing=>{
+    const precio=precioActual(ing);
+    const hist=ing.precios||[];
+    const reciente=fechaDesdeUltimoRecalculo(ing);
+    const nRec=recetas.filter(r=>(r.ingredientes||[]).some(i=>i.tipo==='materia'&&i.ref===ing.id)).length;
+    const ppub=precioPorUnidadBase(ing);
+    const histHTML=hist.length>1?`<div class="ing-historial">
+      <button class="ing-hist-toggle" data-htoggle="${ing.id}">▸ Historial de precios (${hist.length})</button>
+      <div class="ing-hist-list" id="hist-${ing.id}" style="display:none">
+        ${[...hist].reverse().map((h,i)=>`<div class="ing-hist-row"><span class="ing-hist-precio">${money(h.precio)}${i===0?'<span class="ing-hist-actual">actual</span>':''}</span><span class="ing-hist-fecha">${fechaCorta(h.fecha)}</span></div>`).join('')}
+      </div></div>`:'';
+    return `<div class="ing-card">
+      <div class="ing-header">
+        <div>
+          <div class="ing-nombre">${esc(ing.nombre)}</div>
+          ${ing.categoria?`<span class="ing-cat">${esc(ing.categoria)}</span>`:''}
+          <div class="ing-meta">${ing.cantidad} ${ing.unidad} · en ${nRec} receta${nRec!==1?'s':''}</div>
+          ${reciente?`<span class="precio-changed">⚠ Precio actualizado recientemente</span>`:''}
+        </div>
+        <div style="text-align:right">
+          <div class="ing-precio">${money(precio)}</div>
+          <div style="font-size:.72rem;color:var(--muted)">${money(ppub)} /${unidadBase(ing.unidad)}</div>
+        </div>
+      </div>
+      ${histHTML}
+      <div class="card-actions" style="margin-top:11px">
+        <button class="act precio" data-act="precio" data-id="${ing.id}">💰 Actualizar precio</button>
+        <button class="act" data-act="edit-ing" data-id="${ing.id}">Editar</button>
+        <button class="act del" data-act="del-ing" data-id="${ing.id}">Borrar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+$('#ing-list').addEventListener('click', async e=>{
+  const hb=e.target.closest('[data-htoggle]');
+  if(hb){const div=document.getElementById(`hist-${hb.dataset.htoggle}`);const ab=div.style.display!=='none';div.style.display=ab?'none':'block';hb.textContent=(ab?'▸':'▾')+hb.textContent.slice(1);return;}
+  const btn=e.target.closest('[data-act]');if(!btn)return;
+  const id=btn.dataset.id;
+  if(btn.dataset.act==='precio')abrirPrecio(id);
+  else if(btn.dataset.act==='edit-ing')abrirModalIng(id);
+  else if(btn.dataset.act==='del-ing')borrarIng(id);
+});
+$('#cat-ing-toolbar').addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(!c)return;filtroIngCat=c.dataset.c;renderIngredientes();});
+$('#search-ing').addEventListener('input',e=>{busqIng=e.target.value;renderIngredientes();});
+
+// ====================== MODAL INGREDIENTE ======================
+let editandoIngId=null;
+function abrirModalIng(id){
+  editandoIngId=id||null;
+  const ing=id?ingredientes.find(x=>x.id===id):null;
+  $('#ingTitle').textContent=ing?'Editar ingrediente':'Nuevo ingrediente';
+  $('#f-ing-nombre').value=ing?ing.nombre:'';
+  $('#f-ing-cat').value=ing?(ing.categoria||''):'';
+  $('#f-ing-cant').value=ing?ing.cantidad:'';
+  $('#f-ing-unidad').value=ing?ing.unidad:'kg';
+  $('#f-ing-precio').value=ing?precioActual(ing):'';
+  ['err-ing-nombre','err-ing-cant','err-ing-precio'].forEach(id=>$('#'+id).style.display='none');
+  $('#overlayIng').classList.add('open');
+  setTimeout(()=>$('#f-ing-nombre').focus(),50);
+}
+function cerrarModalIng(){$('#overlayIng').classList.remove('open');editandoIngId=null;}
+async function guardarIngModal(){
+  const nombre=$('#f-ing-nombre').value.trim();
+  const cant=parseFloat($('#f-ing-cant').value);
+  const precio=parseFloat($('#f-ing-precio').value);
+  let ok=true;
+  if(!nombre){$('#err-ing-nombre').style.display='block';ok=false;}else $('#err-ing-nombre').style.display='none';
+  if(isNaN(cant)||cant<=0){$('#err-ing-cant').style.display='block';ok=false;}else $('#err-ing-cant').style.display='none';
+  if(isNaN(precio)||precio<0){$('#err-ing-precio').style.display='block';ok=false;}else $('#err-ing-precio').style.display='none';
+  if(!ok)return;
+  if(editandoIngId){
+    const ing=ingredientes.find(x=>x.id===editandoIngId);
+    ing.nombre=nombre;ing.categoria=$('#f-ing-cat').value.trim();ing.cantidad=cant;ing.unidad=$('#f-ing-unidad').value;
+    if(precioActual(ing)!==precio){if(!ing.precios)ing.precios=[];ing.precios.push({precio,fecha:hoyISO()});}
+    toast('Ingrediente actualizado');
+  }else{
+    ingredientes.push({id:uid(),nombre,categoria:$('#f-ing-cat').value.trim(),cantidad:cant,unidad:$('#f-ing-unidad').value,precios:[{precio,fecha:hoyISO()}]});
+    toast('Ingrediente guardado ✓');
+  }
+  await guardarIng();cerrarModalIng();renderIngredientes();
+}
+$('#cancelIng').addEventListener('click',cerrarModalIng);
+$('#saveIng').addEventListener('click',guardarIngModal);
+$('#overlayIng').addEventListener('click',e=>{if(e.target.id==='overlayIng')cerrarModalIng();});
+$('#newIngBtn').addEventListener('click',()=>abrirModalIng());
+async function borrarIng(id){
+  const ing=ingredientes.find(x=>x.id===id);if(!ing)return;
+  if(ingUsadaEnReceta(id)){toast('⚠ Usada en recetas. Quitala primero.');return;}
+  const ok=await confirmar({titulo:'Borrar ingrediente',mensaje:`¿Borrar "${ing.nombre}"?`,ok:'Borrar',peligro:true});
+  if(!ok)return;
+  ingredientes=ingredientes.filter(x=>x.id!==id);
+  await guardarIng();renderIngredientes();toast('Ingrediente borrado');
+}
+
+// ====================== MODAL PRECIO ======================
+let precioIngId=null;
+function abrirPrecio(id){
+  const ing=ingredientes.find(x=>x.id===id);if(!ing)return;
+  precioIngId=id;
+  $('#precioTitle').textContent=`Actualizar precio — ${ing.nombre}`;
+  $('#precio-actual-info').textContent=`Precio actual: ${money(precioActual(ing))} · ${ing.cantidad} ${ing.unidad}`;
+  $('#f-precio-nuevo').value='';$('#err-precio').style.display='none';
+  $('#overlayPrecio').classList.add('open');
+  setTimeout(()=>$('#f-precio-nuevo').focus(),50);
+}
+function cerrarPrecio(){$('#overlayPrecio').classList.remove('open');precioIngId=null;}
+async function savePrecioModal(){
+  const ing=ingredientes.find(x=>x.id===precioIngId);if(!ing)return;
+  const precio=parseFloat($('#f-precio-nuevo').value);
+  if(isNaN(precio)||precio<0){$('#err-precio').style.display='block';return;}
+  $('#err-precio').style.display='none';
+  if(!ing.precios)ing.precios=[];
+  ing.precios.push({precio,fecha:hoyISO()});
+  await guardarIng();cerrarPrecio();renderIngredientes();
+  if(vistaActual==='recetas')renderRecetas();
+  toast(`Precio actualizado a ${money(precio)} ✓`);
+}
+$('#cancelPrecio').addEventListener('click',cerrarPrecio);
+$('#savePrecio').addEventListener('click',savePrecioModal);
+$('#overlayPrecio').addEventListener('click',e=>{if(e.target.id==='overlayPrecio')cerrarPrecio();});
+$('#f-precio-nuevo').addEventListener('keydown',e=>{if(e.key==='Enter')savePrecioModal();});
+
+// ====================== RENDER RECETAS ======================
+let busqRec='',filtroRecCat='todos';
+const multState={};
+function renderRecetas(){
+  const catsRec=[...new Set(recetas.map(r=>r.categoria||'Sin categoría'))].sort();
+  const ct=$('#cat-rec-toolbar');
+  ct.innerHTML=`<button class="cat-chip ${filtroRecCat==='todos'?'active':''}" data-c="todos">Todos</button>`
+    +catsRec.map(c=>`<button class="cat-chip ${filtroRecCat===c?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('#rec-cats-list').innerHTML=catsRec.map(c=>`<option value="${esc(c)}">`).join('');
+  const q=busqRec.trim().toLowerCase();
+  const lista=recetas
+    .filter(r=>filtroRecCat==='todos'||(r.categoria||'Sin categoría')===filtroRecCat)
+    .filter(r=>!q||r.nombre.toLowerCase().includes(q)||(r.categoria||'').toLowerCase().includes(q))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const el=$('#rec-list');
+  if(!recetas.length){el.innerHTML=`<div class="empty"><div class="emoji">📋</div><h3>No hay recetas</h3><p>Creá tu primera receta y calculá su costo automáticamente.</p></div>`;return;}
+  if(!lista.length){el.innerHTML=`<div class="empty"><div class="emoji">🔍</div><h3>Sin resultados</h3></div>`;return;}
+  el.innerHTML=lista.map(rec=>{
+    const mult=multState[rec.id]||1;
+    const costo=costoReceta(rec);
+    const costoScaled=costo*mult;
+    const rindeScaled=rec.rinde?rec.rinde*mult:null;
+    const costoUnit=rec.rinde&&rec.rinde>0?costo/rec.rinde:null;
+    const tieneAlerta=(rec.ingredientes||[]).some(i=>{
+      if(i.tipo!=='materia')return false;
+      const ing=ingredientes.find(x=>x.id===i.ref);
+      return ing&&fechaDesdeUltimoRecalculo(ing);
+    });
+    const ingsHTML=(rec.ingredientes||[]).map(i=>{
+      if(i.tipo==='materia'){
+        const ing=ingredientes.find(x=>x.id===i.ref);
+        const cIng=costoIngrediente(i.ref,i.cantidad*mult,i.unidad);
+        return `<div class="rec-ing-row"><span class="rec-ing-nombre">${esc(ing?.nombre||'Ingrediente eliminado')}</span><span class="rec-ing-cant">${i.cantidad*mult} ${i.unidad}</span><span class="rec-ing-costo">${money(cIng)}</span></div>`;
+      }else{
+        const sub=recetas.find(x=>x.id===i.ref);
+        const cSub=sub?costoReceta(sub)*i.cantidad*mult:0;
+        return `<div class="rec-ing-row"><span class="rec-ing-nombre es-receta">↪ ${esc(sub?.nombre||'Receta eliminada')}</span><span class="rec-ing-cant">×${i.cantidad*mult}</span><span class="rec-ing-costo">${money(cSub)}</span></div>`;
+      }
+    }).join('');
+    return `<div class="rec-card">
+      <div class="rec-header">
+        <div>
+          <div class="rec-nombre">${esc(rec.nombre)}</div>
+          ${rec.categoria?`<span class="rec-cat">${esc(rec.categoria)}</span>`:''}
+          ${rindeScaled?`<div class="rec-rinde">Rinde ${rindeScaled} ${rec.rindeUnit||'unidades'}</div>`:''}
+          ${costoUnit?`<div class="rec-costo-unit">${money(costoUnit)} / unidad</div>`:''}
+          ${tieneAlerta?`<span class="precio-changed">⚠ Ingrediente con precio actualizado</span>`:''}
+        </div>
+        <div style="text-align:right">
+          <div class="rec-costo">${money(costoScaled)}</div>
+          ${mult>1?`<div style="font-size:.72rem;color:var(--muted)">×${mult} aplicado</div>`:''}
+        </div>
+      </div>
+      ${ingsHTML?`<div class="rec-ingredientes">${ingsHTML}</div>`:''}
+      <div class="rec-multiplicador">
+        <div class="mult-label">Multiplicador</div>
+        <div class="mult-controls">
+          <button class="mult-btn" data-mult="-1" data-id="${rec.id}">−</button>
+          <span class="mult-val">×${mult}</span>
+          <button class="mult-btn" data-mult="+1" data-id="${rec.id}">+</button>
+          <div class="mult-resultado">${money(costoScaled)}${rindeScaled?` · ${rindeScaled} ${rec.rindeUnit||'u'}`:''}</div>
+          ${mult>1?`<button class="mult-guardar" data-guardar="${rec.id}">Guardar copia</button>`:''}
+        </div>
+      </div>
+      <div class="card-actions" style="margin-top:11px">
+        <button class="act" data-act="edit-rec" data-id="${rec.id}">Editar</button>
+        <button class="act del" data-act="del-rec" data-id="${rec.id}">Borrar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+$('#rec-list').addEventListener('click',async e=>{
+  const mb=e.target.closest('[data-mult]');
+  if(mb){const id=mb.dataset.id;if(!multState[id])multState[id]=1;multState[id]=Math.max(1,multState[id]+parseInt(mb.dataset.mult));renderRecetas();return;}
+  const gc=e.target.closest('[data-guardar]');if(gc){abrirCopia(gc.dataset.guardar);return;}
+  const btn=e.target.closest('[data-act]');if(!btn)return;
+  const id=btn.dataset.id;
+  if(btn.dataset.act==='edit-rec')abrirModalRec(id);
+  else if(btn.dataset.act==='del-rec')borrarRec(id);
+});
+$('#cat-rec-toolbar').addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(!c)return;filtroRecCat=c.dataset.c;renderRecetas();});
+$('#search-rec').addEventListener('input',e=>{busqRec=e.target.value;renderRecetas();});
+
+// ====================== MODAL RECETA ======================
+let editandoRecId=null;
+function recIngFormHTML(ings){
+  const list=$('#rec-ing-form-list');if(!list)return;
+  list.innerHTML=(ings||[]).map((i,idx)=>{
+    const esMat=i.tipo==='materia';
+    const optsIng=ingredientes.map(x=>`<option value="${x.id}" ${i.ref===x.id&&esMat?'selected':''}>${esc(x.nombre)}</option>`).join('');
+    const optsRec=recetas.filter(x=>x.id!==editandoRecId).map(x=>`<option value="${x.id}" ${i.ref===x.id&&!esMat?'selected':''}>${esc(x.nombre)}</option>`).join('');
+    const unidades=['g','kg','ml','l','u'].map(u=>`<option value="${u}" ${i.unidad===u?'selected':''}>${u}</option>`).join('');
+    return `<div class="rec-ing-form-row" data-rif="${idx}">
+      <div class="rec-ing-tipo">
+        <button type="button" class="${esMat?'active':''}" data-tipo="materia" data-ri="${idx}">🥚 Materia prima</button>
+        <button type="button" class="${!esMat?'active':''}" data-tipo="receta" data-ri="${idx}">📋 Receta anidada</button>
+      </div>
+      <div class="rec-ing-form-top">
+        <select class="sel-ref" data-ri="${idx}">${esMat?optsIng:optsRec}</select>
+        <input type="number" class="inp-cant-rec" placeholder="${esMat?'Cant.':'×'}" value="${i.cantidad||''}" step="any" min="0.001" inputmode="decimal">
+        ${esMat?`<select class="sel-unidad">${unidades}</select>`:''}
+        <button type="button" class="btn-rm" data-rirm="${idx}">×</button>
+      </div>
+    </div>`;
+  }).join('');
+  actualizarPreviewCosto();
+}
+function leerRecIngForm(){
+  const rows=document.querySelectorAll('#rec-ing-form-list .rec-ing-form-row');
+  const result=[];
+  rows.forEach(row=>{
+    const tipo=row.querySelector('[data-tipo].active')?.dataset.tipo||'materia';
+    const ref=row.querySelector('.sel-ref')?.value;
+    const cantidad=parseFloat(row.querySelector('.inp-cant-rec')?.value)||0;
+    const unidad=row.querySelector('.sel-unidad')?.value||'g';
+    if(ref&&cantidad>0)result.push({tipo,ref,cantidad,unidad});
+  });
+  return result;
+}
+function actualizarPreviewCosto(){
+  const ings=leerRecIngForm();
+  const mdo=parseFloat($('#f-rec-mdo').value)||0;
+  const rinde=parseFloat($('#f-rec-rinde').value)||0;
+  let total=mdo;
+  for(const i of ings){
+    if(i.tipo==='materia')total+=costoIngrediente(i.ref,i.cantidad,i.unidad);
+    else{const sub=recetas.find(x=>x.id===i.ref);if(sub)total+=costoReceta(sub)*i.cantidad;}
+  }
+  const unitStr=rinde>0?` · ${money(total/rinde)}/unidad`:'';
+  $('#rec-costo-preview').innerHTML=ings.length||mdo?`<strong>Costo estimado: ${money(total)}</strong>${unitStr}`:'Cargá ingredientes para ver el costo estimado';
+}
+function agregarRecIng(){
+  const list=$('#rec-ing-form-list');
+  const idx=list.children.length;
+  const optsIng=ingredientes.map(x=>`<option value="${x.id}">${esc(x.nombre)}</option>`).join('');
+  const div=document.createElement('div');
+  div.className='rec-ing-form-row';div.dataset.rif=idx;
+  div.innerHTML=`<div class="rec-ing-tipo">
+    <button type="button" class="active" data-tipo="materia" data-ri="${idx}">🥚 Materia prima</button>
+    <button type="button" data-tipo="receta" data-ri="${idx}">📋 Receta anidada</button>
+  </div>
+  <div class="rec-ing-form-top">
+    <select class="sel-ref" data-ri="${idx}">${optsIng}</select>
+    <input type="number" class="inp-cant-rec" placeholder="Cant." step="any" min="0.001" inputmode="decimal">
+    <select class="sel-unidad"><option value="g">g</option><option value="kg">kg</option><option value="ml">ml</option><option value="l">l</option><option value="u">u</option></select>
+    <button type="button" class="btn-rm" data-rirm="${idx}">×</button>
+  </div>`;
+  list.appendChild(div);
+}
+$('#rec-ing-form-list').addEventListener('click',e=>{
+  if(e.target.dataset.rirm!==undefined){e.target.closest('.rec-ing-form-row').remove();actualizarPreviewCosto();return;}
+  const tb=e.target.closest('[data-tipo]');if(!tb)return;
+  const row=tb.closest('.rec-ing-form-row');
+  const tipo=tb.dataset.tipo;
+  row.querySelectorAll('[data-tipo]').forEach(b=>b.classList.toggle('active',b.dataset.tipo===tipo));
+  const sel=row.querySelector('.sel-ref');
+  const unitSel=row.querySelector('.sel-unidad');
+  if(tipo==='materia'){
+    sel.innerHTML=ingredientes.map(x=>`<option value="${x.id}">${esc(x.nombre)}</option>`).join('');
+    if(!unitSel){const u=document.createElement('select');u.className='sel-unidad';u.innerHTML='<option value="g">g</option><option value="kg">kg</option><option value="ml">ml</option><option value="l">l</option><option value="u">u</option>';row.querySelector('.rec-ing-form-top').insertBefore(u,row.querySelector('.btn-rm'));}
+  }else{
+    sel.innerHTML=recetas.filter(x=>x.id!==editandoRecId).map(x=>`<option value="${x.id}">${esc(x.nombre)}</option>`).join('');
+    if(unitSel)unitSel.remove();
+  }
+  actualizarPreviewCosto();
+});
+$('#rec-ing-form-list').addEventListener('input',actualizarPreviewCosto);
+$('#f-rec-rinde').addEventListener('input',actualizarPreviewCosto);
+$('#f-rec-mdo').addEventListener('input',actualizarPreviewCosto);
+$('#btn-add-rec-ing').addEventListener('click',agregarRecIng);
+function abrirModalRec(id){
+  editandoRecId=id||null;
+  const rec=id?recetas.find(x=>x.id===id):null;
+  $('#recTitle').textContent=rec?'Editar receta':'Nueva receta';
+  $('#f-rec-nombre').value=rec?rec.nombre:'';
+  $('#f-rec-cat').value=rec?(rec.categoria||''):'';
+  $('#f-rec-rinde').value=rec?(rec.rinde||''):'';
+  $('#f-rec-rinde-unit').value=rec?(rec.rindeUnit||''):'';
+  $('#f-rec-mdo').value=rec?(rec.mdo||''):'';
+  recIngFormHTML(rec?rec.ingredientes:[]);
+  $('#err-rec-nombre').style.display='none';
+  $('#overlayRec').classList.add('open');
+  setTimeout(()=>$('#f-rec-nombre').focus(),50);
+}
+function cerrarModalRec(){$('#overlayRec').classList.remove('open');editandoRecId=null;}
+async function guardarRecModal(){
+  const nombre=$('#f-rec-nombre').value.trim();
+  if(!nombre){$('#err-rec-nombre').style.display='block';return;}
+  $('#err-rec-nombre').style.display='none';
+  const datos={nombre,categoria:$('#f-rec-cat').value.trim(),rinde:parseFloat($('#f-rec-rinde').value)||null,rindeUnit:$('#f-rec-rinde-unit').value.trim()||'unidades',mdo:parseFloat($('#f-rec-mdo').value)||0,ingredientes:leerRecIngForm()};
+  if(editandoRecId){const rec=recetas.find(x=>x.id===editandoRecId);Object.assign(rec,datos);toast('Receta actualizada');}
+  else{recetas.push({id:uid(),creado:hoyISO(),...datos});toast('Receta guardada ✓');}
+  await guardarRec();cerrarModalRec();renderRecetas();
+}
+$('#cancelRec').addEventListener('click',cerrarModalRec);
+$('#saveRec').addEventListener('click',guardarRecModal);
+$('#overlayRec').addEventListener('click',e=>{if(e.target.id==='overlayRec')cerrarModalRec();});
+$('#newRecBtn').addEventListener('click',()=>abrirModalRec());
+async function borrarRec(id){
+  const rec=recetas.find(x=>x.id===id);if(!rec)return;
+  const usada=recetas.some(r=>r.id!==id&&(r.ingredientes||[]).some(i=>i.tipo==='receta'&&i.ref===id));
+  if(usada){toast('⚠ Esta receta se usa como ingrediente en otra. Quitala primero.');return;}
+  const ok=await confirmar({titulo:'Borrar receta',mensaje:`¿Borrar "${rec.nombre}"?`,ok:'Borrar',peligro:true});
+  if(!ok)return;
+  recetas=recetas.filter(x=>x.id!==id);
+  await guardarRec();renderRecetas();toast('Receta borrada');
+}
+
+// ====================== GUARDAR COPIA ESCALADA ======================
+let copiaRecId=null;
+function abrirCopia(id){
+  const rec=recetas.find(x=>x.id===id);if(!rec)return;
+  copiaRecId=id;
+  const mult=multState[id]||1;
+  $('#copia-info').textContent=`Copia de "${rec.nombre}" escalada ×${mult}. Todos los ingredientes se multiplicarán por ${mult}.`;
+  $('#f-copia-nombre').value=`${rec.nombre} ×${mult}`;
+  $('#overlayCopia').classList.add('open');
+  setTimeout(()=>{const inp=$('#f-copia-nombre');inp.focus();inp.select();},50);
+}
+function cerrarCopia(){$('#overlayCopia').classList.remove('open');copiaRecId=null;}
+async function guardarCopiaRec(){
+  const rec=recetas.find(x=>x.id===copiaRecId);if(!rec)return;
+  const mult=multState[copiaRecId]||1;
+  const nombre=$('#f-copia-nombre').value.trim()||`${rec.nombre} ×${mult}`;
+  const copia={...JSON.parse(JSON.stringify(rec)),id:uid(),creado:hoyISO(),nombre,rinde:rec.rinde?rec.rinde*mult:null,mdo:(rec.mdo||0)*mult,ingredientes:(rec.ingredientes||[]).map(i=>({...i,cantidad:i.cantidad*mult}))};
+  recetas.push(copia);
+  delete multState[copiaRecId];
+  await guardarRec();cerrarCopia();renderRecetas();toast(`"${nombre}" guardada como nueva receta ✓`);
+}
+$('#cancelCopia').addEventListener('click',cerrarCopia);
+$('#saveCopia').addEventListener('click',guardarCopiaRec);
+$('#overlayCopia').addEventListener('click',e=>{if(e.target.id==='overlayCopia')cerrarCopia();});
 
 // Menú de respaldo
 $('#menuBtn').addEventListener('click', e=>{ e.stopPropagation(); $('#menu').classList.toggle('open'); });
@@ -1299,6 +2409,11 @@ $('#guardarCp').addEventListener('click', cambiarContrasena);
 $('#overlayCp').addEventListener('click', e=>{ if(e.target.id==='overlayCp') cerrarCp(); });
 $('#cp-nueva2').addEventListener('keydown', e=>{ if(e.key==='Enter') cambiarContrasena(); });
 $('#overlayGh').addEventListener('click', e=>{ if(e.target.id==='overlayGh') cerrarGh(); });
+$('#cancelParcial').addEventListener('click', cerrarParcial);
+$('#guardarParcial').addEventListener('click', guardarParcial);
+$('#overlayParcial').addEventListener('click', e=>{ if(e.target.id==='overlayParcial') cerrarParcial(); });
+$('#f-parcial').addEventListener('keydown', e=>{ if(e.key==='Enter') guardarParcial(); });
+$('#f-parcial-nota').addEventListener('keydown', e=>{ if(e.key==='Enter') guardarParcial(); });
 // Pantalla de acceso
 $('#lg-entrar').addEventListener('click', hacerLogin);
 $('#lg-reset').addEventListener('click', reconfigurar);
@@ -1315,7 +2430,7 @@ $('#importBtn').addEventListener('click', ()=>$('#importFile').click());
 $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJson(e.target.files[0]); e.target.value=''; });
 
 // Enter para guardar (en inputs de texto del modal)
-['f-cliente','f-detalle','f-monto'].forEach(id=>{
+['f-cliente','f-monto'].forEach(id=>{
   $('#'+id).addEventListener('keydown', e=>{ if(e.key==='Enter') guardarPedido(); });
 });
 
@@ -1334,6 +2449,8 @@ $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJ
   // Si hay una sesión recordada, entramos directo sin pedir la contraseña
   if(hayVault() && await restaurarSesion()){
     pedidos = await cargar();
+    ingredientes = await leerCacheIng();
+    recetas = await leerCacheRec();
     await desbloquear();
     return;
   }
