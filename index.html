@@ -432,6 +432,68 @@
     font-weight:500;opacity:0;transition:.25s;z-index:40;pointer-events:none;box-shadow:var(--shadow);
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ===================== MÓVIL ===================== */
+  @media(max-width:480px){
+
+    /* Cards de receta: resumen apilado en vez de lado a lado */
+    .rec-resumen{flex-direction:column;align-items:flex-start;gap:6px}
+    .rec-resumen-costos{text-align:left}
+    .rec-resumen-pvp{font-size:1rem}
+
+    /* Filas de detalle: label arriba, valor abajo si es largo */
+    .rec-fila{flex-wrap:wrap;gap:2px}
+    .rec-fila-label{flex:1 1 100%}
+    .rec-fila-valor{flex:1 1 auto}
+    /* Excepto las sencillas que caben bien en una línea */
+    .rec-fila.destacado,.rec-fila.con-merma,.rec-fila.precio-venta{flex-wrap:nowrap}
+
+    /* Grid de costos operativos: 1 columna en móvil */
+    .costos-op-grid{grid-template-columns:1fr}
+
+    /* field-row (Merma + Margen, Rinde + Unidad): apila en móvil */
+    .field-row{flex-direction:column;gap:0}
+
+    /* Botón toggle más fácil de tocar */
+    .rec-toggle{padding:10px 0 2px;font-size:.88rem}
+
+    /* Secciones del detalle: padding más compacto */
+    .rec-seccion{padding:9px 10px}
+    .rec-seccion-titulo{font-size:.7rem}
+
+    /* Multiplicador: apila resultado debajo de los controles */
+    .mult-controls{flex-wrap:wrap}
+    .mult-resultado{flex:1 1 100%;margin-top:4px;font-size:.84rem}
+    .mult-guardar{margin-left:0;margin-top:4px}
+
+    /* Botones de acción: ocupan todo el ancho para ser más fáciles de tocar */
+    .card-actions{gap:8px}
+    .act{flex:1;justify-content:center;text-align:center;padding:9px 8px}
+
+    /* Sheet (modal): padding lateral más chico */
+    .sheet{padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+    .sheet h2{font-size:1.1rem;margin-bottom:12px}
+
+    /* Inputs más altos para el dedo */
+    .field input,.field textarea,.costo-op-field input,.select-mes{
+      padding:13px 12px;font-size:1rem
+    }
+
+    /* Sheet actions: botones grandes */
+    .sheet-actions{flex-direction:column;gap:8px}
+    .sheet-actions .btn-primary,.sheet-actions .btn-ghost{width:100%;justify-content:center;padding:14px}
+    .btn-ghost{text-align:center}
+
+    /* Preview de costo en el formulario */
+    .rec-costo-preview{font-size:.84rem;padding:10px 11px}
+
+    /* Chips de categoría más chicos */
+    .cat-chip{font-size:.78rem;padding:5px 10px}
+
+    /* Toast más ancho en móvil */
+    .toast{left:16px;right:16px;transform:translateY(20px);border-radius:14px;text-align:center}
+    .toast.show{transform:translateY(0)}
+  }
 </style>
 </head>
 <body>
@@ -2275,6 +2337,7 @@ function renderRecetas(){
     const margenP=rec.margen!=null?rec.margen:150;
     const pvpTotal=conMerma*(1+margenP/100);
     const rindeScaled=rec.rinde?rec.rinde*mult:null;
+    const unidadStr=rec.rindeUnit||'unidades';
     const tieneAlerta=(rec.ingredientes||[]).some(i=>{
       if(i.tipo!=='materia')return false;
       const ing=ingredientes.find(x=>x.id===i.ref);
