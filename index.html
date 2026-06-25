@@ -490,6 +490,13 @@
     /* Chips de categoría más chicos */
     .cat-chip{font-size:.78rem;padding:5px 10px}
 
+    /* Fila de ingrediente en formulario: reorganizar para móvil */
+    .rec-ing-form-top{flex-wrap:wrap}
+    .rec-ing-form-top .sel-ref{flex:1 1 100%;max-width:none;order:1}
+    .rec-ing-form-top .inp-cant-rec{flex:1 1 0;max-width:none;min-width:80px;order:2}
+    .rec-ing-form-top .sel-unidad{flex:0 0 80px;max-width:80px;order:3}
+    .rec-ing-form-top .btn-rm{order:4;margin-left:auto}
+
     /* Toast más ancho en móvil */
     .toast{left:16px;right:16px;transform:translateY(20px);border-radius:14px;text-align:center}
     .toast.show{transform:translateY(0)}
