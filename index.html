@@ -280,6 +280,45 @@
   .rec-costo{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--brand);white-space:nowrap}
   .rec-rinde{font-size:.78rem;color:var(--muted)}
   .rec-costo-unit{font-size:.8rem;color:var(--mint);font-weight:600;margin-top:2px}
+
+  /* Secciones de costeo */
+  .rec-seccion{margin-top:10px;background:#FAF4EF;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .rec-seccion-titulo{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+  .rec-fila{display:flex;justify-content:space-between;align-items:center;font-size:.84rem;padding:3px 0;border-bottom:1px solid var(--line)}
+  .rec-fila:last-child{border-bottom:none}
+  .rec-fila-label{color:var(--ink)}
+  .rec-fila-valor{font-weight:600;color:var(--ink);white-space:nowrap}
+  .rec-fila.destacado .rec-fila-label{font-weight:600;color:var(--ink)}
+  .rec-fila.destacado .rec-fila-valor{color:var(--brand);font-family:'Fraunces',serif;font-size:.95rem}
+  .rec-fila.con-merma .rec-fila-valor{color:var(--amber)}
+  .rec-fila.precio-venta .rec-fila-label{font-weight:700;color:var(--ink)}
+  .rec-fila.precio-venta .rec-fila-valor{color:var(--mint);font-family:'Fraunces',serif;font-size:1rem}
+  .rec-fila-sub{font-size:.72rem;color:var(--muted);margin-left:6px;font-weight:400}
+  .rec-tiempo{margin-top:8px;font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+  .rec-notas{margin-top:7px;font-size:.84rem;color:var(--ink);background:#FAF4EF;border-radius:10px;padding:8px 10px;border:1px solid var(--line);line-height:1.45}
+  .rec-notas-label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+
+  /* Card colapsable */
+  .rec-resumen{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
+  .rec-resumen-costos{display:flex;flex-direction:column;gap:2px;text-align:right}
+  .rec-resumen-sinmerma{font-size:.78rem;color:var(--muted)}
+  .rec-resumen-pvp{font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;color:var(--mint)}
+  .rec-resumen-pvp-label{font-size:.7rem;color:var(--mint);font-weight:500}
+  .rec-detalle{display:none}
+  .rec-card.expandida .rec-detalle{display:block}
+  .rec-toggle{background:none;border:none;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--muted);font-family:inherit;padding:8px 0 0;display:flex;align-items:center;gap:5px;width:100%}
+  .rec-toggle:hover{color:var(--brand)}
+  .rec-toggle-arrow{transition:transform .2s;display:inline-block}
+  .rec-card.expandida .rec-toggle-arrow{transform:rotate(180deg)}
+
+  /* Form costos operativos */
+  .costos-op-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+  .costo-op-field{display:flex;flex-direction:column;gap:4px}
+  .costo-op-field label{font-size:.78rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px}
+  .costo-op-field input{border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:.9rem;font-family:inherit;color:var(--ink);background:var(--bg);width:100%}
+  .costo-op-field input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
+  .costos-op-total{font-size:.8rem;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .costos-op-total span{color:var(--brand)}
   .rec-ingredientes{margin-top:10px;background:#FAF4EF;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
   .rec-ing-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;padding:4px 0;border-bottom:1px solid var(--line)}
   .rec-ing-row:last-child{border-bottom:none}
@@ -709,8 +748,42 @@
       </div>
     </div>
     <div class="field">
-      <label for="f-rec-mdo">Mano de obra ($) <span class="opt">(opcional)</span></label>
-      <input id="f-rec-mdo" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+      <label>Costos operativos <span class="opt">(% sobre ingredientes)</span></label>
+      <div class="costos-op-grid">
+        <div class="costo-op-field">
+          <label for="f-rec-gas">🔥 Gas (%)</label>
+          <input id="f-rec-gas" type="number" inputmode="decimal" min="0" max="200" step="1" placeholder="10">
+        </div>
+        <div class="costo-op-field">
+          <label for="f-rec-luz">⚡ Electricidad (%)</label>
+          <input id="f-rec-luz" type="number" inputmode="decimal" min="0" max="200" step="1" placeholder="10">
+        </div>
+        <div class="costo-op-field">
+          <label for="f-rec-mdo">👐 Mano de obra (%)</label>
+          <input id="f-rec-mdo" type="number" inputmode="decimal" min="0" max="200" step="1" placeholder="30">
+        </div>
+      </div>
+      <div class="costos-op-total">Total costos operativos: <span id="rec-costos-total">50%</span></div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-rec-merma">Merma <span class="opt">(% pérdida, opcional)</span></label>
+        <input id="f-rec-merma" type="number" inputmode="decimal" min="0" max="99" step="1" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="f-rec-margen">Margen de ganancia <span class="opt">(%)</span></label>
+        <input id="f-rec-margen" type="number" inputmode="decimal" min="0" step="1" placeholder="150">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-rec-tiempo">⏱ Tiempo de preparación <span class="opt">(minutos, opcional)</span></label>
+        <input id="f-rec-tiempo" type="number" inputmode="numeric" min="0" step="1" placeholder="Ej: 45">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-rec-notas">📝 Notas <span class="opt">(opcional)</span></label>
+      <textarea id="f-rec-notas" placeholder="Instrucciones, aclaraciones, tips…"></textarea>
     </div>
     <div class="field">
       <label>Ingredientes</label>
@@ -1993,15 +2066,35 @@ function costoIngrediente(ingId, cantidad, unidad){
   if(unidad==='l'  && ub==='ml') cantBase=cantidad*1000;
   return ppub*cantBase;
 }
-function costoReceta(rec, visitados=new Set()){
+// Devuelve solo el costo de ingredientes (sin costos operativos).
+// Así las recetas anidadas se calculan correctamente sin duplicar operativos.
+function costoIngredientesReceta(rec, visitados=new Set()){
   if(visitados.has(rec.id)) return 0;
   visitados.add(rec.id);
   let total=0;
   for(const i of (rec.ingredientes||[])){
     if(i.tipo==='materia') total+=costoIngrediente(i.ref,i.cantidad,i.unidad);
-    else if(i.tipo==='receta'){const sub=recetas.find(x=>x.id===i.ref);if(sub)total+=costoReceta(sub,new Set(visitados))*(i.cantidad||1);}
+    else if(i.tipo==='receta'){const sub=recetas.find(x=>x.id===i.ref);if(sub)total+=costoIngredientesReceta(sub,new Set(visitados))*(i.cantidad||1);}
   }
-  return total+(rec.mdo||0);
+  return total;
+}
+// Costo total sin merma = ingredientes + costos operativos
+function costoReceta(rec, visitados=new Set()){
+  const base=costoIngredientesReceta(rec, visitados);
+  const pct=((rec.gas||0)+(rec.luz||0)+(rec.mdo||0))/100;
+  return base*(1+pct);
+}
+// Costo con merma aplicada
+function costoConMerma(rec){
+  const sinMerma=costoReceta(rec);
+  const merma=(rec.merma||0)/100;
+  return merma>0 ? sinMerma/(1-merma) : sinMerma;
+}
+// Precio de venta sugerido (sobre costo con merma)
+function precioSugerido(rec){
+  const base=costoConMerma(rec);
+  const margen=(rec.margen!=null?rec.margen:150)/100;
+  return base*(1+margen);
 }
 function fechaDesdeUltimoRecalculo(ing){
   if(!ing.precios||ing.precios.length<2) return false;
@@ -2154,6 +2247,7 @@ $('#f-precio-nuevo').addEventListener('keydown',e=>{if(e.key==='Enter')savePreci
 // ====================== RENDER RECETAS ======================
 let busqRec='',filtroRecCat='todos';
 const multState={};
+const expandState={}; // guarda qué recetas están expandidas
 function renderRecetas(){
   const catsRec=[...new Set(recetas.map(r=>r.categoria||'Sin categoría'))].sort();
   const ct=$('#cat-rec-toolbar');
@@ -2170,10 +2264,17 @@ function renderRecetas(){
   if(!lista.length){el.innerHTML=`<div class="empty"><div class="emoji">🔍</div><h3>Sin resultados</h3></div>`;return;}
   el.innerHTML=lista.map(rec=>{
     const mult=multState[rec.id]||1;
-    const costo=costoReceta(rec);
-    const costoScaled=costo*mult;
+    // Costos operativos con defaults para recetas legacy
+    const gasP=rec.gas??10, luzP=rec.luz??10, mdoP=rec.mdo??30;
+    const totalOpP=gasP+luzP+mdoP;
+    const baseIng=costoIngredientesReceta(rec)*mult;
+    const costoOp=baseIng*(totalOpP/100);
+    const sinMerma=baseIng+costoOp;
+    const mermaP=rec.merma||0;
+    const conMerma=mermaP>0?sinMerma/(1-(mermaP/100)):sinMerma;
+    const margenP=rec.margen!=null?rec.margen:150;
+    const pvpTotal=conMerma*(1+margenP/100);
     const rindeScaled=rec.rinde?rec.rinde*mult:null;
-    const costoUnit=rec.rinde&&rec.rinde>0?costo/rec.rinde:null;
     const tieneAlerta=(rec.ingredientes||[]).some(i=>{
       if(i.tipo!=='materia')return false;
       const ing=ingredientes.find(x=>x.id===i.ref);
@@ -2186,43 +2287,111 @@ function renderRecetas(){
         return `<div class="rec-ing-row"><span class="rec-ing-nombre">${esc(ing?.nombre||'Ingrediente eliminado')}</span><span class="rec-ing-cant">${i.cantidad*mult} ${i.unidad}</span><span class="rec-ing-costo">${money(cIng)}</span></div>`;
       }else{
         const sub=recetas.find(x=>x.id===i.ref);
-        const cSub=sub?costoReceta(sub)*i.cantidad*mult:0;
+        const cSub=sub?costoIngredientesReceta(sub)*i.cantidad*mult:0;
         return `<div class="rec-ing-row"><span class="rec-ing-nombre es-receta">↪ ${esc(sub?.nombre||'Receta eliminada')}</span><span class="rec-ing-cant">×${i.cantidad*mult}</span><span class="rec-ing-costo">${money(cSub)}</span></div>`;
       }
     }).join('');
-    return `<div class="rec-card">
+    const rindeStr=rindeScaled?`Rinde ${rindeScaled} ${unidadStr}`:'';
+    const pvpUnitStr=rindeScaled?money(pvpTotal/rindeScaled):'';
+    return `<div class="rec-card" data-rec-id="${rec.id}">
       <div class="rec-header">
-        <div>
+        <div style="flex:1">
           <div class="rec-nombre">${esc(rec.nombre)}</div>
           ${rec.categoria?`<span class="rec-cat">${esc(rec.categoria)}</span>`:''}
-          ${rindeScaled?`<div class="rec-rinde">Rinde ${rindeScaled} ${rec.rindeUnit||'unidades'}</div>`:''}
-          ${costoUnit?`<div class="rec-costo-unit">${money(costoUnit)} / unidad</div>`:''}
           ${tieneAlerta?`<span class="precio-changed">⚠ Ingrediente con precio actualizado</span>`:''}
         </div>
-        <div style="text-align:right">
-          <div class="rec-costo">${money(costoScaled)}</div>
-          ${mult>1?`<div style="font-size:.72rem;color:var(--muted)">×${mult} aplicado</div>`:''}
+      </div>
+
+      <div class="rec-resumen">
+        <div>
+          ${rindeStr?`<div class="rec-rinde">${rindeStr}</div>`:''}
+          <div class="rec-resumen-sinmerma">Costo: ${money(sinMerma)}${mermaP>0?` · con merma: ${money(conMerma)}`:''}</div>
+        </div>
+        <div class="rec-resumen-costos">
+          ${pvpUnitStr?`<div class="rec-resumen-pvp-label">precio / unidad</div><div class="rec-resumen-pvp">${pvpUnitStr}</div>`
+            :`<div class="rec-resumen-pvp-label">precio sugerido</div><div class="rec-resumen-pvp">${money(pvpTotal)}</div>`}
         </div>
       </div>
-      ${ingsHTML?`<div class="rec-ingredientes">${ingsHTML}</div>`:''}
-      <div class="rec-multiplicador">
-        <div class="mult-label">Multiplicador</div>
-        <div class="mult-controls">
-          <button class="mult-btn" data-mult="-1" data-id="${rec.id}">−</button>
-          <span class="mult-val">×${mult}</span>
-          <button class="mult-btn" data-mult="+1" data-id="${rec.id}">+</button>
-          <div class="mult-resultado">${money(costoScaled)}${rindeScaled?` · ${rindeScaled} ${rec.rindeUnit||'u'}`:''}</div>
-          ${mult>1?`<button class="mult-guardar" data-guardar="${rec.id}">Guardar copia</button>`:''}
+
+      <button class="rec-toggle" data-toggle="${rec.id}">
+        <span class="rec-toggle-arrow">▾</span> Ver detalle
+      </button>
+
+      <div class="rec-detalle">
+
+        ${ingsHTML?`<div class="rec-seccion">
+          <div class="rec-seccion-titulo">🥚 Ingredientes</div>
+          ${ingsHTML}
+          <div class="rec-fila destacado" style="margin-top:4px"><span class="rec-fila-label">Subtotal ingredientes</span><span class="rec-fila-valor">${money(baseIng)}</span></div>
+        </div>`:''}
+
+        <div class="rec-seccion">
+          <div class="rec-seccion-titulo">⚙️ Costos operativos</div>
+          <div class="rec-fila"><span class="rec-fila-label">🔥 Gas (${gasP}%)</span><span class="rec-fila-valor">${money(baseIng*gasP/100)}</span></div>
+          <div class="rec-fila"><span class="rec-fila-label">⚡ Electricidad (${luzP}%)</span><span class="rec-fila-valor">${money(baseIng*luzP/100)}</span></div>
+          <div class="rec-fila"><span class="rec-fila-label">👐 Mano de obra (${mdoP}%)</span><span class="rec-fila-valor">${money(baseIng*mdoP/100)}</span></div>
+          <div class="rec-fila destacado"><span class="rec-fila-label">Total operativos (${totalOpP}%)</span><span class="rec-fila-valor">${money(costoOp)}</span></div>
         </div>
-      </div>
+
+        <div class="rec-seccion">
+          <div class="rec-seccion-titulo">💰 Resumen de costos</div>
+          <div class="rec-fila destacado"><span class="rec-fila-label">Costo sin merma</span><span class="rec-fila-valor">${money(sinMerma)}${rindeScaled?`<span class="rec-fila-sub">${money(sinMerma/rindeScaled)}/u</span>`:''}</span></div>
+          ${mermaP>0?`<div class="rec-fila con-merma"><span class="rec-fila-label">Costo con merma (${mermaP}%)</span><span class="rec-fila-valor">${money(conMerma)}${rindeScaled?`<span class="rec-fila-sub">${money(conMerma/rindeScaled)}/u</span>`:''}</span></div>`:''}
+        </div>
+
+        <div class="rec-seccion" style="background:var(--mint-soft);border-color:#C7E5D9">
+          <div class="rec-seccion-titulo" style="color:var(--mint)">🏷️ Precio de venta sugerido (margen ${margenP}%)</div>
+          <div class="rec-fila precio-venta"><span class="rec-fila-label">Lote completo</span><span class="rec-fila-valor">${money(pvpTotal)}</span></div>
+          ${rindeScaled?`<div class="rec-fila precio-venta"><span class="rec-fila-label">Por unidad</span><span class="rec-fila-valor">${money(pvpTotal/rindeScaled)}</span></div>`:''}
+        </div>
+
+        <div class="rec-multiplicador">
+          <div class="mult-label">Multiplicador de cantidad</div>
+          <div class="mult-controls">
+            <button class="mult-btn" data-mult="-1" data-id="${rec.id}">−</button>
+            <span class="mult-val">×${mult}</span>
+            <button class="mult-btn" data-mult="+1" data-id="${rec.id}">+</button>
+            <div class="mult-resultado">${mult>1?`<strong>${money(sinMerma)}</strong> sin merma${rindeScaled?` · ${rindeScaled} ${unidadStr}`:''}`:''}</div>
+            ${mult>1?`<button class="mult-guardar" data-guardar="${rec.id}">Guardar copia</button>`:''}
+          </div>
+        </div>
+
+        ${rec.tiempo?`<div class="rec-tiempo">⏱ <strong>${rec.tiempo} minutos</strong> de preparación</div>`:''}
+        ${rec.notas?`<div class="rec-notas"><div class="rec-notas-label">📝 Notas</div>${esc(rec.notas)}</div>`:''}
+
+      </div><!-- /rec-detalle -->
+
       <div class="card-actions" style="margin-top:11px">
         <button class="act" data-act="edit-rec" data-id="${rec.id}">Editar</button>
         <button class="act del" data-act="del-rec" data-id="${rec.id}">Borrar</button>
       </div>
     </div>`;
   }).join('');
+  // Restaurar cards expandidas tras re-render
+  Object.keys(expandState).forEach(id=>{
+    if(expandState[id]){
+      const card=el.querySelector(`[data-rec-id="${id}"]`);
+      if(card){
+        card.classList.add('expandida');
+        const btn=card.querySelector('[data-toggle]');
+        if(btn)btn.innerHTML='<span class="rec-toggle-arrow" style="transform:rotate(180deg)">▾</span> Ocultar detalle';
+      }
+    }
+  });
 }
 $('#rec-list').addEventListener('click',async e=>{
+  // Toggle expandir/colapsar
+  const tb=e.target.closest('[data-toggle]');
+  if(tb){
+    const id=tb.dataset.toggle;
+    const card=tb.closest('.rec-card');
+    const expandida=card.classList.toggle('expandida');
+    expandState[id]=expandida;
+    tb.innerHTML=expandida
+      ?'<span class="rec-toggle-arrow" style="transform:rotate(180deg)">▾</span> Ocultar detalle'
+      :'<span class="rec-toggle-arrow">▾</span> Ver detalle';
+    return;
+  }
   const mb=e.target.closest('[data-mult]');
   if(mb){const id=mb.dataset.id;if(!multState[id])multState[id]=1;multState[id]=Math.max(1,multState[id]+parseInt(mb.dataset.mult));renderRecetas();return;}
   const gc=e.target.closest('[data-guardar]');if(gc){abrirCopia(gc.dataset.guardar);return;}
@@ -2272,15 +2441,32 @@ function leerRecIngForm(){
 }
 function actualizarPreviewCosto(){
   const ings=leerRecIngForm();
+  const gas=parseFloat($('#f-rec-gas').value)||0;
+  const luz=parseFloat($('#f-rec-luz').value)||0;
   const mdo=parseFloat($('#f-rec-mdo').value)||0;
+  const merma=parseFloat($('#f-rec-merma').value)||0;
+  const margen=parseFloat($('#f-rec-margen').value)??150;
   const rinde=parseFloat($('#f-rec-rinde').value)||0;
-  let total=mdo;
+  const totalOp=gas+luz+mdo;
+  $('#rec-costos-total').textContent=totalOp+'%';
+  let baseIng=0;
   for(const i of ings){
-    if(i.tipo==='materia')total+=costoIngrediente(i.ref,i.cantidad,i.unidad);
-    else{const sub=recetas.find(x=>x.id===i.ref);if(sub)total+=costoReceta(sub)*i.cantidad;}
+    if(i.tipo==='materia')baseIng+=costoIngrediente(i.ref,i.cantidad,i.unidad);
+    else{const sub=recetas.find(x=>x.id===i.ref);if(sub)baseIng+=costoIngredientesReceta(sub)*i.cantidad;}
   }
-  const unitStr=rinde>0?` · ${money(total/rinde)}/unidad`:'';
-  $('#rec-costo-preview').innerHTML=ings.length||mdo?`<strong>Costo estimado: ${money(total)}</strong>${unitStr}`:'Cargá ingredientes para ver el costo estimado';
+  const sinMerma=baseIng*(1+totalOp/100);
+  const conMerma=merma>0?sinMerma/(1-(merma/100)):sinMerma;
+  const pvp=conMerma*(1+(margen/100));
+  if(!ings.length){$('#rec-costo-preview').innerHTML='Cargá ingredientes para ver el costo estimado';return;}
+  const unitSinMerma=rinde>0?` · ${money(sinMerma/rinde)}/u`:'';
+  const unitConMerma=rinde>0?` · ${money(conMerma/rinde)}/u`:'';
+  const unitPvp=rinde>0?` · ${money(pvp/rinde)}/u`:'';
+  $('#rec-costo-preview').innerHTML=
+    `<div style="display:flex;flex-direction:column;gap:3px">
+      <span>Sin merma: <strong>${money(sinMerma)}</strong>${unitSinMerma}</span>
+      ${merma>0?`<span style="color:var(--amber)">Con merma (${merma}%): <strong>${money(conMerma)}</strong>${unitConMerma}</span>`:''}
+      <span style="color:var(--mint)">Precio sugerido (${margen}%): <strong>${money(pvp)}</strong>${unitPvp}</span>
+    </div>`;
 }
 function agregarRecIng(){
   const list=$('#rec-ing-form-list');
@@ -2320,6 +2506,10 @@ $('#rec-ing-form-list').addEventListener('click',e=>{
 $('#rec-ing-form-list').addEventListener('input',actualizarPreviewCosto);
 $('#f-rec-rinde').addEventListener('input',actualizarPreviewCosto);
 $('#f-rec-mdo').addEventListener('input',actualizarPreviewCosto);
+$('#f-rec-gas').addEventListener('input',actualizarPreviewCosto);
+$('#f-rec-luz').addEventListener('input',actualizarPreviewCosto);
+$('#f-rec-merma').addEventListener('input',actualizarPreviewCosto);
+$('#f-rec-margen').addEventListener('input',actualizarPreviewCosto);
 $('#btn-add-rec-ing').addEventListener('click',agregarRecIng);
 function abrirModalRec(id){
   editandoRecId=id||null;
@@ -2329,7 +2519,17 @@ function abrirModalRec(id){
   $('#f-rec-cat').value=rec?(rec.categoria||''):'';
   $('#f-rec-rinde').value=rec?(rec.rinde||''):'';
   $('#f-rec-rinde-unit').value=rec?(rec.rindeUnit||''):'';
-  $('#f-rec-mdo').value=rec?(rec.mdo||''):'';
+  // Costos operativos: defaults 10/10/30 para recetas nuevas, migración de mdo$ legacy
+  const esNueva=!rec;
+  const tieneCostosNuevos=rec&&(rec.gas!=null||rec.luz!=null);
+  $('#f-rec-gas').value=tieneCostosNuevos?(rec.gas??10):(esNueva?10:10);
+  $('#f-rec-luz').value=tieneCostosNuevos?(rec.luz??10):(esNueva?10:10);
+  // Si la receta es legacy (tenía mdo en $), lo dejamos en 30 como default
+  $('#f-rec-mdo').value=rec?(rec.mdo??30):30;
+  $('#f-rec-merma').value=rec?(rec.merma||''):'';
+  $('#f-rec-margen').value=rec?(rec.margen!=null?rec.margen:150):150;
+  $('#f-rec-tiempo').value=rec?(rec.tiempo||''):'';
+  $('#f-rec-notas').value=rec?(rec.notas||''):'';
   recIngFormHTML(rec?rec.ingredientes:[]);
   $('#err-rec-nombre').style.display='none';
   $('#overlayRec').classList.add('open');
@@ -2340,7 +2540,20 @@ async function guardarRecModal(){
   const nombre=$('#f-rec-nombre').value.trim();
   if(!nombre){$('#err-rec-nombre').style.display='block';return;}
   $('#err-rec-nombre').style.display='none';
-  const datos={nombre,categoria:$('#f-rec-cat').value.trim(),rinde:parseFloat($('#f-rec-rinde').value)||null,rindeUnit:$('#f-rec-rinde-unit').value.trim()||'unidades',mdo:parseFloat($('#f-rec-mdo').value)||0,ingredientes:leerRecIngForm()};
+  const datos={
+    nombre,
+    categoria:$('#f-rec-cat').value.trim(),
+    rinde:parseFloat($('#f-rec-rinde').value)||null,
+    rindeUnit:$('#f-rec-rinde-unit').value.trim()||'unidades',
+    gas:parseFloat($('#f-rec-gas').value)??10,
+    luz:parseFloat($('#f-rec-luz').value)??10,
+    mdo:parseFloat($('#f-rec-mdo').value)??30,
+    merma:parseFloat($('#f-rec-merma').value)||0,
+    margen:parseFloat($('#f-rec-margen').value)??150,
+    tiempo:parseFloat($('#f-rec-tiempo').value)||null,
+    notas:$('#f-rec-notas').value.trim()||null,
+    ingredientes:leerRecIngForm()
+  };
   if(editandoRecId){const rec=recetas.find(x=>x.id===editandoRecId);Object.assign(rec,datos);toast('Receta actualizada');}
   else{recetas.push({id:uid(),creado:hoyISO(),...datos});toast('Receta guardada ✓');}
   await guardarRec();cerrarModalRec();renderRecetas();
@@ -2375,7 +2588,19 @@ async function guardarCopiaRec(){
   const rec=recetas.find(x=>x.id===copiaRecId);if(!rec)return;
   const mult=multState[copiaRecId]||1;
   const nombre=$('#f-copia-nombre').value.trim()||`${rec.nombre} ×${mult}`;
-  const copia={...JSON.parse(JSON.stringify(rec)),id:uid(),creado:hoyISO(),nombre,rinde:rec.rinde?rec.rinde*mult:null,mdo:(rec.mdo||0)*mult,ingredientes:(rec.ingredientes||[]).map(i=>({...i,cantidad:i.cantidad*mult}))};
+  const copia={
+    ...JSON.parse(JSON.stringify(rec)),
+    id:uid(),creado:hoyISO(),nombre,
+    rinde:rec.rinde?rec.rinde*mult:null,
+    mdo:rec.mdo??30,
+    gas:rec.gas??10,
+    luz:rec.luz??10,
+    merma:rec.merma||0,
+    margen:rec.margen!=null?rec.margen:150,
+    tiempo:rec.tiempo||null,
+    notas:rec.notas||null,
+    ingredientes:(rec.ingredientes||[]).map(i=>({...i,cantidad:i.cantidad*mult}))
+  };
   recetas.push(copia);
   delete multState[copiaRecId];
   await guardarRec();cerrarCopia();renderRecetas();toast(`"${nombre}" guardada como nueva receta ✓`);
