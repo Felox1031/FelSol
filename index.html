@@ -58,12 +58,14 @@
     padding:14px 0 0;margin-bottom:18px;
   }
   /* Nav tabs */
-  .nav-tabs{display:flex;gap:4px;border-top:1px solid var(--line);margin-top:10px}
+  .nav-tabs{display:flex;gap:4px;border-top:1px solid var(--line);margin-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .nav-tabs::-webkit-scrollbar{display:none}
   .nav-tab{
     padding:10px 16px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;
     font-family:inherit;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;
-    transition:.15s;border-radius:0;
+    transition:.15s;border-radius:0;white-space:nowrap;flex:0 0 auto;
   }
+  @media(max-width:480px){ .nav-tab{padding:10px 13px;font-size:.84rem} }
   .nav-tab:hover{color:var(--ink)}
   .nav-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
   .top-inner{max-width:760px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -389,6 +391,15 @@
   .item-form-row input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.88rem;font-family:inherit;color:var(--ink);background:var(--bg)}
   .item-form-row input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
   .item-form-row .inp-cant{max-width:72px}
+  .item-form-row .inp-precio{max-width:88px;display:none}
+  .items-form-list.auto-on .inp-precio{display:block}
+  /* Toggle de monto automático */
+  .auto-monto{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);font-weight:600;cursor:pointer;margin:0 0 8px;user-select:none}
+  .auto-monto input{width:17px;height:17px;accent-color:var(--brand);cursor:pointer;flex:0 0 auto}
+  .auto-monto .hint{font-weight:500;color:var(--muted)}
+  #f-monto.calc-auto{background:var(--brand-soft);border-color:#E6CDD9;color:var(--brand);font-weight:700}
+  .monto-auto-nota{font-size:.74rem;color:var(--mint);font-weight:600;margin-top:4px;display:none}
+  .monto-auto-nota.on{display:block}
   .item-form-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.1rem;padding:4px;line-height:1;flex:0 0 auto}
   .item-form-row .btn-rm:hover{color:var(--danger)}
   .btn-add-item{background:none;border:1px dashed var(--line);border-radius:9px;padding:8px 12px;font-size:.84rem;color:var(--muted);cursor:pointer;width:100%;font-family:inherit;transition:.15s}
@@ -549,6 +560,7 @@
       <button class="nav-tab active" data-view="pedidos">🧾 Pedidos</button>
       <button class="nav-tab" data-view="ingredientes">🥚 Ingredientes</button>
       <button class="nav-tab" data-view="recetas">📋 Recetas</button>
+      <button class="nav-tab" data-view="productos">🏷️ Productos</button>
     </nav>
   </div>
 </header>
@@ -634,6 +646,16 @@
   <div id="rec-list"></div>
 </div><!-- /vista-recetas -->
 
+<!-- VISTA: PRODUCTOS -->
+<div class="vista" id="vista-productos">
+  <div class="toolbar">
+    <button class="btn-primary" id="newProdBtn"><span class="plus">+</span> Nuevo producto</button>
+    <input class="search" id="search-prod" type="text" placeholder="Buscar producto…" autocomplete="off">
+  </div>
+  <div class="cat-toolbar" id="cat-prod-toolbar"></div>
+  <div id="prod-list"></div>
+</div><!-- /vista-productos -->
+
 </div><!-- /wrap -->
 
 <!-- Modal nuevo/editar -->
@@ -654,6 +676,7 @@
         <label for="f-monto">Monto a cobrar</label>
         <input id="f-monto" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
         <div class="err" id="err-monto">Ingresá un monto válido.</div>
+        <div class="monto-auto-nota" id="monto-auto-nota">✓ Calculado desde los artículos</div>
       </div>
       <div class="field">
         <label for="f-fecha">Entrega <span class="opt">(opcional)</span></label>
@@ -669,8 +692,13 @@
     </div>
     <div class="field">
       <label>Artículos / ítems <span class="opt">(opcional)</span></label>
+      <label class="auto-monto" for="auto-monto-chk">
+        <input type="checkbox" id="auto-monto-chk">
+        <span>Calcular monto automáticamente <span class="hint">(precio × cantidad)</span></span>
+      </label>
       <div class="items-form-list" id="items-form-list"></div>
       <button type="button" class="btn-add-item" id="btn-add-item">+ Agregar artículo</button>
+      <datalist id="productos-list"></datalist>
     </div>
     <div class="field">
       <label for="f-nota">Nota <span class="opt">(opcional)</span></label>
@@ -788,6 +816,32 @@
     <div class="sheet-actions">
       <button class="btn-ghost" id="cancelPrecio">Cancelar</button>
       <button class="btn-primary" id="savePrecio" style="justify-content:center">Actualizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet nuevo/editar producto -->
+<div class="overlay" id="overlayProd">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="prodTitle" style="max-width:460px">
+    <h2 id="prodTitle">Nuevo producto</h2>
+    <div class="field">
+      <label for="f-prod-nombre">Nombre</label>
+      <input id="f-prod-nombre" type="text" placeholder="Ej: Alfajor de maicena" autocomplete="off">
+      <div class="err" id="err-prod-nombre">Poné el nombre del producto.</div>
+    </div>
+    <div class="field">
+      <label for="f-prod-cat">Categoría <span class="opt">(opcional)</span></label>
+      <input id="f-prod-cat" type="text" placeholder="Ej: Alfajores, Tortas, Tartas…" list="prod-cats-list" autocomplete="off">
+      <datalist id="prod-cats-list"></datalist>
+    </div>
+    <div class="field">
+      <label for="f-prod-precio">Precio ($)</label>
+      <input id="f-prod-precio" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+      <div class="err" id="err-prod-precio">Ingresá un precio válido.</div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelProd">Cancelar</button>
+      <button class="btn-primary" id="saveProd" style="justify-content:center">Guardar</button>
     </div>
   </div>
 </div>
@@ -1159,6 +1213,7 @@ async function guardar(){ await escribirCacheCifrada(); ghPushDebounced(); } // 
 // ---- Ingredientes y Recetas: caché cifrada separada ----
 const CACHE_ING_KEY = 'dulcero:cache:ing';
 const CACHE_REC_KEY = 'dulcero:cache:rec';
+const CACHE_PROD_KEY = 'dulcero:cache:prod';
 
 async function leerCacheIng(){
   if(!appKey) return [];
@@ -1190,6 +1245,22 @@ async function escribirCacheRec(){
   try{
     const s = JSON.stringify(await cifrar(appKey, recetas));
     if(tieneLocal) localStorage.setItem(CACHE_REC_KEY, s);
+  }catch(e){}
+}
+async function leerCacheProd(){
+  if(!appKey) return [];
+  try{
+    const raw = tieneLocal ? localStorage.getItem(CACHE_PROD_KEY) : null;
+    if(!raw) return [];
+    const arr = await descifrar(appKey, JSON.parse(raw));
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){ return []; }
+}
+async function escribirCacheProd(){
+  if(!appKey) return;
+  try{
+    const s = JSON.stringify(await cifrar(appKey, productos));
+    if(tieneLocal) localStorage.setItem(CACHE_PROD_KEY, s);
   }catch(e){}
 }
 
@@ -1232,8 +1303,8 @@ async function ghPushExtra(filename, shaRef, datos){
   }catch(e){}
 }
 
-const ghShaIngRef = {val:null}, ghShaRecRef = {val:null};
-let pushIngT = null, pushRecT = null;
+const ghShaIngRef = {val:null}, ghShaRecRef = {val:null}, ghShaProdRef = {val:null};
+let pushIngT = null, pushRecT = null, pushProdT = null;
 
 async function guardarIng(){
   await escribirCacheIng();
@@ -1249,11 +1320,21 @@ async function guardarRec(){
     pushRecT = setTimeout(()=>ghPushExtra('recetas.json', ghShaRecRef, recetas), 800);
   }
 }
+async function guardarProd(){
+  await escribirCacheProd();
+  if(ghOk()){
+    clearTimeout(pushProdT);
+    pushProdT = setTimeout(()=>ghPushExtra('productos.json', ghShaProdRef, productos), 800);
+  }
+}
 
 // ---- Estado ----
 let pedidos = [];
 let ingredientes = [];
 let recetas = [];
+let productos = [];
+let filtroProdCat = 'todos';
+let busqProd = '';
 let filtro = 'todos';
 let busqueda = '';
 let editandoId = null;
@@ -1507,16 +1588,23 @@ function renderList(){
 function render(){ renderStats(); renderList(); }
 
 // ---- Ítems de pedido ----
-// Estado de ítems: { nombre, cant, estado } — estado: 'pendiente'|'listo'|'entregado'
+// Estado de ítems: { nombre, cant, estado, precio? } — estado: 'pendiente'|'listo'|'entregado'
+// precio = precio unitario congelado al momento de cargarlo (snapshot)
+
+let autoMontoOn = false;
+
+function itemRowHTML(it){
+  it = it || {};
+  const precioVal = (it.precio!=null && !isNaN(it.precio)) ? esc(it.precio) : '';
+  return `<input type="text" class="inp-nombre" list="productos-list" placeholder="Ej: alfajores de maicena" value="${esc(it.nombre||'')}" autocomplete="off">
+    <input type="number" class="inp-precio" inputmode="decimal" min="0" step="any" placeholder="$ c/u" value="${precioVal}" autocomplete="off">
+    <input type="text" class="inp-cant" placeholder="Cant." value="${esc(it.cant||'')}" autocomplete="off" style="max-width:72px">
+    <button type="button" class="btn-rm" title="Quitar artículo">×</button>`;
+}
 
 function itemsFormHTML(items){
   const list = $('#items-form-list'); if(!list) return;
-  list.innerHTML = (items||[]).map((it,i)=>`
-    <div class="item-form-row" data-ii="${i}">
-      <input type="text" class="inp-nombre" placeholder="Ej: alfajores de maicena" value="${esc(it.nombre||'')}" autocomplete="off">
-      <input type="text" class="inp-cant inp-cant" placeholder="Cant." value="${esc(it.cant||'')}" autocomplete="off" style="max-width:72px">
-      <button type="button" class="btn-rm" data-rm="${i}" title="Quitar artículo">×</button>
-    </div>`).join('');
+  list.innerHTML = (items||[]).map(it=>`<div class="item-form-row">${itemRowHTML(it)}</div>`).join('');
 }
 
 function leerItemsForm(){
@@ -1525,28 +1613,73 @@ function leerItemsForm(){
   rows.forEach(row=>{
     const nombre = row.querySelector('.inp-nombre').value.trim();
     const cant   = row.querySelector('.inp-cant').value.trim();
-    if(nombre) result.push({ nombre, cant, estado:'pendiente' });
+    const precioRaw = row.querySelector('.inp-precio').value.trim();
+    if(nombre){
+      const it = { nombre, cant, estado:'pendiente' };
+      if(precioRaw!=='' && !isNaN(parseFloat(precioRaw))) it.precio = parseFloat(precioRaw);
+      result.push(it);
+    }
   });
   return result;
 }
 
 function agregarItemForm(){
   const list = $('#items-form-list');
-  const idx = list.children.length;
   const div = document.createElement('div');
-  div.className = 'item-form-row'; div.dataset.ii = idx;
-  div.innerHTML = `<input type="text" class="inp-nombre" placeholder="Ej: alfajores de maicena" autocomplete="off">
-    <input type="text" class="inp-cant" placeholder="Cant." autocomplete="off" style="max-width:72px">
-    <button type="button" class="btn-rm" data-rm="${idx}" title="Quitar artículo">×</button>`;
+  div.className = 'item-form-row';
+  div.innerHTML = itemRowHTML();
   list.appendChild(div);
   div.querySelector('.inp-nombre').focus();
 }
 
+// Recalcula el monto a cobrar a partir de precio × cantidad de cada artículo
+function recalcularMonto(){
+  if(!autoMontoOn) return;
+  let total = 0;
+  document.querySelectorAll('#items-form-list .item-form-row').forEach(row=>{
+    const precio = parseFloat(row.querySelector('.inp-precio').value);
+    if(isNaN(precio)) return;
+    let cant = parseFloat(row.querySelector('.inp-cant').value);
+    if(isNaN(cant)) cant = 1;            // caso base: cantidad vacía = 1
+    total += precio * cant;
+  });
+  $('#f-monto').value = total ? Math.round(total*100)/100 : '';
+}
+
+// Activa/desactiva el modo "monto automático"
+function setAutoMonto(on){
+  autoMontoOn = !!on;
+  $('#auto-monto-chk').checked = autoMontoOn;
+  $('#items-form-list').classList.toggle('auto-on', autoMontoOn);
+  const monto = $('#f-monto');
+  monto.readOnly = autoMontoOn;
+  monto.classList.toggle('calc-auto', autoMontoOn);
+  $('#monto-auto-nota').classList.toggle('on', autoMontoOn);
+  if(autoMontoOn) recalcularMonto();
+}
+
 $('#items-form-list').addEventListener('click', e=>{
-  if(e.target.dataset.rm !== undefined){
+  if(e.target.classList.contains('btn-rm')){
     e.target.closest('.item-form-row').remove();
+    recalcularMonto();
   }
 });
+$('#items-form-list').addEventListener('input', e=>{
+  // Si el nombre coincide exactamente con un producto precargado, traigo su precio (snapshot)
+  if(e.target.classList.contains('inp-nombre')){
+    const val = e.target.value.trim().toLowerCase();
+    const prod = productos.find(p=>p.nombre.toLowerCase()===val);
+    if(prod){
+      const row = e.target.closest('.item-form-row');
+      row.querySelector('.inp-precio').value = prod.precio;
+      recalcularMonto();
+    }
+  }
+  if(e.target.classList.contains('inp-precio') || e.target.classList.contains('inp-cant')){
+    recalcularMonto();
+  }
+});
+$('#auto-monto-chk').addEventListener('change', e=>setAutoMonto(e.target.checked));
 $('#btn-add-item').addEventListener('click', agregarItemForm);
 
 // ---- Sheet de gestión de ítems ----
@@ -1707,6 +1840,12 @@ function abrirModal(id){
   $('#f-nota').value    = p ? (p.nota||'') : '';
   itemsFormHTML(p ? (p.items||[]) : []);
   setEstadoForm(p ? p.estado : 'pendiente');
+  // Datalist con los productos precargados (para el autocompletado de precio)
+  $('#productos-list').innerHTML = productos
+    .slice().sort((a,b)=>a.nombre.localeCompare(b.nombre))
+    .map(pr=>`<option value="${esc(pr.nombre)}">${money(pr.precio)}</option>`).join('');
+  // Restaurar el modo de monto automático (apagado por defecto = comportamiento de siempre)
+  setAutoMonto(p ? !!p.autoMonto : false);
   $('#err-cliente').style.display='none'; $('#err-monto').style.display='none';
   $('#overlay').classList.add('open');
   setTimeout(()=>$('#f-cliente').focus(), 50);
@@ -1720,6 +1859,7 @@ function setEstadoForm(e){
   });
 }
 async function guardarPedido(){
+  if(autoMontoOn) recalcularMonto();   // aseguro que el monto refleje los artículos
   const cliente = $('#f-cliente').value.trim();
   const montoRaw = $('#f-monto').value;
   const monto = parseFloat(montoRaw);
@@ -1732,6 +1872,7 @@ async function guardarPedido(){
     cliente,
     telefono: $('#f-tel').value.trim(),
     monto,
+    autoMonto: autoMontoOn,
     entrega: $('#f-fecha').value || '',
     nota: $('#f-nota').value.trim(),
     estado: estadoForm,
@@ -1950,6 +2091,7 @@ async function desbloquear(){
     // Pull de ingredientes y recetas
     await ghPullExtra('materias.json', ghShaIngRef, (arr,sha)=>{ ingredientes=arr; ghShaIngRef.val=sha; escribirCacheIng(); });
     await ghPullExtra('recetas.json', ghShaRecRef, (arr,sha)=>{ recetas=arr; ghShaRecRef.val=sha; escribirCacheRec(); });
+    await ghPullExtra('productos.json', ghShaProdRef, (arr,sha)=>{ productos=arr; ghShaProdRef.val=sha; escribirCacheProd(); });
   }
   await escribirCacheCifrada();
 }
@@ -1962,6 +2104,7 @@ async function hacerLogin(){
     pedidos = await cargar();
     ingredientes = await leerCacheIng();
     recetas = await leerCacheRec();
+    productos = await leerCacheProd();
     await desbloquear();
   } else { $('#lg-err').textContent = 'Contraseña incorrecta.'; }
 }
@@ -2114,6 +2257,7 @@ function cambiarVista(v){
   document.querySelectorAll('.vista').forEach(el=>el.classList.toggle('active', el.id===`vista-${v}`));
   if(v==='ingredientes') renderIngredientes();
   if(v==='recetas') renderRecetas();
+  if(v==='productos') renderProductos();
 }
 document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>cambiarVista(t.dataset.view)));
 
@@ -2312,6 +2456,93 @@ $('#cancelPrecio').addEventListener('click',cerrarPrecio);
 $('#savePrecio').addEventListener('click',savePrecioModal);
 $('#overlayPrecio').addEventListener('click',e=>{if(e.target.id==='overlayPrecio')cerrarPrecio();});
 $('#f-precio-nuevo').addEventListener('keydown',e=>{if(e.key==='Enter')savePrecioModal();});
+
+// ====================== RENDER PRODUCTOS ======================
+function renderProductos(){
+  const cats=[...new Set(productos.map(p=>p.categoria||'Sin categoría'))].sort();
+  const ct=$('#cat-prod-toolbar');
+  ct.innerHTML=`<button class="cat-chip ${filtroProdCat==='todos'?'active':''}" data-c="todos">Todos</button>`
+    +cats.map(c=>`<button class="cat-chip ${filtroProdCat===c?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('#prod-cats-list').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
+  const q=busqProd.trim().toLowerCase();
+  const lista=productos
+    .filter(p=>filtroProdCat==='todos'||(p.categoria||'Sin categoría')===filtroProdCat)
+    .filter(p=>!q||p.nombre.toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const el=$('#prod-list');
+  if(!productos.length){el.innerHTML=`<div class="empty"><div class="emoji">🏷️</div><h3>No hay productos</h3><p>Cargá tus productos a la venta con su precio. Después los vas a poder usar para calcular pedidos automáticamente.</p></div>`;return;}
+  if(!lista.length){el.innerHTML=`<div class="empty"><div class="emoji">🔍</div><h3>Sin resultados</h3></div>`;return;}
+  el.innerHTML=lista.map(prod=>`<div class="ing-card">
+    <div class="ing-header">
+      <div>
+        <div class="ing-nombre">${esc(prod.nombre)}</div>
+        ${prod.categoria?`<span class="ing-cat">${esc(prod.categoria)}</span>`:''}
+      </div>
+      <div style="text-align:right">
+        <div class="ing-precio">${money(prod.precio)}</div>
+      </div>
+    </div>
+    <div class="card-actions" style="margin-top:11px">
+      <button class="act" data-act="edit-prod" data-id="${prod.id}">Editar</button>
+      <button class="act del" data-act="del-prod" data-id="${prod.id}">Borrar</button>
+    </div>
+  </div>`).join('');
+}
+$('#prod-list').addEventListener('click', e=>{
+  const btn=e.target.closest('[data-act]');if(!btn)return;
+  const id=btn.dataset.id;
+  if(btn.dataset.act==='edit-prod')abrirModalProd(id);
+  else if(btn.dataset.act==='del-prod')borrarProd(id);
+});
+$('#cat-prod-toolbar').addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(!c)return;filtroProdCat=c.dataset.c;renderProductos();});
+$('#search-prod').addEventListener('input',e=>{busqProd=e.target.value;renderProductos();});
+
+// ====================== MODAL PRODUCTO ======================
+let editandoProdId=null;
+function abrirModalProd(id){
+  editandoProdId=id||null;
+  const prod=id?productos.find(x=>x.id===id):null;
+  $('#prodTitle').textContent=prod?'Editar producto':'Nuevo producto';
+  $('#f-prod-nombre').value=prod?prod.nombre:'';
+  $('#f-prod-cat').value=prod?(prod.categoria||''):'';
+  $('#f-prod-precio').value=prod?prod.precio:'';
+  const cats=[...new Set(productos.map(p=>p.categoria||'').filter(Boolean))].sort();
+  $('#prod-cats-list').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
+  ['err-prod-nombre','err-prod-precio'].forEach(k=>$('#'+k).style.display='none');
+  $('#overlayProd').classList.add('open');
+  setTimeout(()=>$('#f-prod-nombre').focus(),50);
+}
+function cerrarModalProd(){$('#overlayProd').classList.remove('open');editandoProdId=null;}
+async function guardarProdModal(){
+  const nombre=$('#f-prod-nombre').value.trim();
+  const precio=parseFloat($('#f-prod-precio').value);
+  let ok=true;
+  if(!nombre){$('#err-prod-nombre').style.display='block';ok=false;}else $('#err-prod-nombre').style.display='none';
+  if(isNaN(precio)||precio<0){$('#err-prod-precio').style.display='block';ok=false;}else $('#err-prod-precio').style.display='none';
+  if(!ok)return;
+  const categoria=$('#f-prod-cat').value.trim();
+  if(editandoProdId){
+    const prod=productos.find(x=>x.id===editandoProdId);
+    prod.nombre=nombre;prod.categoria=categoria;prod.precio=precio;
+    toast('Producto actualizado');
+  }else{
+    productos.push({id:uid(),nombre,categoria,precio,creado:hoyISO()});
+    toast('Producto guardado ✓');
+  }
+  await guardarProd();cerrarModalProd();renderProductos();
+}
+$('#cancelProd').addEventListener('click',cerrarModalProd);
+$('#saveProd').addEventListener('click',guardarProdModal);
+$('#overlayProd').addEventListener('click',e=>{if(e.target.id==='overlayProd')cerrarModalProd();});
+$('#newProdBtn').addEventListener('click',()=>abrirModalProd());
+$('#f-prod-precio').addEventListener('keydown',e=>{if(e.key==='Enter')guardarProdModal();});
+async function borrarProd(id){
+  const prod=productos.find(x=>x.id===id);if(!prod)return;
+  const ok=await confirmar({titulo:'Borrar producto',mensaje:`¿Borrar "${prod.nombre}"? Los pedidos que ya lo usaron conservan su precio.`,ok:'Borrar',peligro:true});
+  if(!ok)return;
+  productos=productos.filter(x=>x.id!==id);
+  await guardarProd();renderProductos();toast('Producto borrado');
+}
 
 // ====================== RENDER RECETAS ======================
 let busqRec='',filtroRecCat='todos';
@@ -2743,6 +2974,7 @@ $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJ
     pedidos = await cargar();
     ingredientes = await leerCacheIng();
     recetas = await leerCacheRec();
+    productos = await leerCacheProd();
     await desbloquear();
     return;
   }
