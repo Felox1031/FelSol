@@ -512,6 +512,16 @@
     .toast{left:16px;right:16px;transform:translateY(20px);border-radius:14px;text-align:center}
     .toast.show{transform:translateY(0)}
   }
+  /* ── STOCK ── */
+  .stock-hint{font-size:.8rem;color:var(--muted);margin:-4px 0 14px;line-height:1.45}
+  .stock-stepper{display:flex;align-items:center;gap:8px}
+  .stock-btn{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--brand);font-size:1.35rem;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit;-webkit-tap-highlight-color:transparent;flex:none}
+  .stock-btn:hover{border-color:var(--brand);background:var(--brand-soft)}
+  .stock-btn:active{transform:scale(.93)}
+  .stock-input{width:66px;text-align:center;font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:8px 4px;background:var(--surface);-moz-appearance:textfield}
+  .stock-input::-webkit-outer-spin-button,.stock-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .stock-badge{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;margin-top:6px;background:#F7DCDC;color:var(--danger)}
+  .stock-card.is-cero .stock-input{color:var(--danger);border-color:#E7B7B7}
 </style>
 </head>
 <body>
@@ -561,6 +571,7 @@
       <button class="nav-tab" data-view="ingredientes">🥚 Ingredientes</button>
       <button class="nav-tab" data-view="recetas">📋 Recetas</button>
       <button class="nav-tab" data-view="productos">🏷️ Productos</button>
+      <button class="nav-tab" data-view="stock">📦 Stock</button>
     </nav>
   </div>
 </header>
@@ -655,6 +666,16 @@
   <div class="cat-toolbar" id="cat-prod-toolbar"></div>
   <div id="prod-list"></div>
 </div><!-- /vista-productos -->
+
+<!-- VISTA: STOCK -->
+<div class="vista" id="vista-stock">
+  <div class="toolbar">
+    <input class="search" id="search-stock" type="text" placeholder="Buscar producto…" autocomplete="off">
+  </div>
+  <p class="stock-hint">El stock baja solo cuando marcás un artículo como <b>entregado</b> en un pedido. Acá ajustás a mano lo que vas produciendo.</p>
+  <div class="cat-toolbar" id="cat-stock-toolbar"></div>
+  <div id="stock-list"></div>
+</div><!-- /vista-stock -->
 
 </div><!-- /wrap -->
 
@@ -1335,6 +1356,8 @@ let recetas = [];
 let productos = [];
 let filtroProdCat = 'todos';
 let busqProd = '';
+let filtroStockCat = 'todos';
+let busqStock = '';
 let filtro = 'todos';
 let busqueda = '';
 let editandoId = null;
@@ -1742,7 +1765,9 @@ $('#items-sheet-list').addEventListener('click', async e=>{
   } else if(act==='toggle-check'){
     p.items[i].estado = btn.checked ? 'entregado' : 'pendiente';
   }
+  await reconciliarStock(p);
   await guardar(); renderItemsSheet(); render();
+  if(vistaActual==='stock') renderStock();
 });
 
 $('#cerrarItems').addEventListener('click', cerrarItemsSheet);
@@ -1824,8 +1849,10 @@ async function borrar(id){
     ok:'Borrar', peligro:true
   });
   if(!ok) return;
+  await revertirStock(p);
   pedidos = pedidos.filter(x=>x.id!==id);
   await guardar(); render(); toast('Pedido borrado');
+  if(vistaActual==='stock') renderStock();
 }
 
 // ---- Modal ----
@@ -1889,15 +1916,19 @@ async function guardarPedido(){
       return nuevos;
     })(),
   };
+  let pRef;
   if(editandoId){
-    const p = pedidos.find(x=>x.id===editandoId);
-    Object.assign(p, datos);
+    pRef = pedidos.find(x=>x.id===editandoId);
+    Object.assign(pRef, datos);
     toast('Pedido actualizado');
   } else {
-    pedidos.push({ id: uid(), creado: hoyISO(), ...datos });
+    pRef = { id: uid(), creado: hoyISO(), ...datos };
+    pedidos.push(pRef);
     toast('Pedido guardado ✓');
   }
+  await reconciliarStock(pRef);
   await guardar(); render(); cerrarModal();
+  if(vistaActual==='stock') renderStock();
 }
 
 // ---- Resumen mensual (PDF vía impresión) ----
@@ -2258,6 +2289,7 @@ function cambiarVista(v){
   if(v==='ingredientes') renderIngredientes();
   if(v==='recetas') renderRecetas();
   if(v==='productos') renderProductos();
+  if(v==='stock') renderStock();
 }
 document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>cambiarVista(t.dataset.view)));
 
@@ -2543,6 +2575,121 @@ async function borrarProd(id){
   productos=productos.filter(x=>x.id!==id);
   await guardarProd();renderProductos();toast('Producto borrado');
 }
+
+// ====================== STOCK ======================
+// El stock vive como campo `stock` dentro de cada producto: no puede haber stock
+// de algo que no esté cargado en Productos. El descuento es IDEMPOTENTE: cada pedido
+// recuerda en `stockAplicado` (idProducto -> cantidad) cuánto ya descontó, y solo se
+// aplica la diferencia. Política: se descuenta al ENTREGAR cada artículo.
+
+function parseCant(v){
+  const n = parseFloat(String(v==null?'':v).replace(',','.'));
+  return (isNaN(n) || n<=0) ? null : n;
+}
+
+// Cuánto DEBERÍA tener descontado este pedido: artículos entregados, con cantidad
+// numérica, cuyo nombre coincide con un producto cargado. Se resuelve a id de producto.
+function objetivoDescuento(p){
+  const obj = {};
+  (p.items||[]).forEach(it=>{
+    if(it.estado!=='entregado') return;
+    const cant = parseCant(it.cant);
+    if(cant==null) return;
+    const prod = productos.find(pr=>pr.nombre.toLowerCase()===String(it.nombre||'').toLowerCase());
+    if(!prod) return;
+    obj[prod.id] = (obj[prod.id]||0) + cant;
+  });
+  return obj;
+}
+
+// Aplica al stock SOLO la diferencia entre el objetivo y lo ya aplicado. Idempotente:
+// reconciliar dos veces sin cambios no mueve nada; editar cantidades ajusta el delta exacto.
+async function reconciliarStock(p){
+  const aplicado = p.stockAplicado || {};
+  const objetivo = objetivoDescuento(p);
+  let cambio = false;
+  const ids = new Set([...Object.keys(aplicado), ...Object.keys(objetivo)]);
+  ids.forEach(id=>{
+    const delta = (objetivo[id]||0) - (aplicado[id]||0); // >0 descuenta, <0 devuelve
+    if(delta===0) return;
+    const prod = productos.find(pr=>pr.id===id);
+    if(prod){ prod.stock = (Number(prod.stock)||0) - delta; cambio = true; }
+  });
+  p.stockAplicado = objetivo;
+  if(cambio) await guardarProd();
+  return cambio;
+}
+
+// Devuelve al stock todo lo que el pedido tenía descontado (al borrarlo).
+async function revertirStock(p){
+  const aplicado = p.stockAplicado || {};
+  let cambio = false;
+  Object.keys(aplicado).forEach(id=>{
+    const prod = productos.find(pr=>pr.id===id);
+    if(prod){ prod.stock = (Number(prod.stock)||0) + aplicado[id]; cambio = true; }
+  });
+  p.stockAplicado = {};
+  if(cambio) await guardarProd();
+}
+
+// ---- Vista Stock (se arma a partir de los productos) ----
+function renderStock(){
+  const cats=[...new Set(productos.map(p=>p.categoria||'Sin categoría'))].sort();
+  const ct=$('#cat-stock-toolbar');
+  ct.innerHTML=`<button class="cat-chip ${filtroStockCat==='todos'?'active':''}" data-c="todos">Todos</button>`
+    +cats.map(c=>`<button class="cat-chip ${filtroStockCat===c?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  const el=$('#stock-list');
+  if(!productos.length){el.innerHTML=`<div class="empty"><div class="emoji">📦</div><h3>No hay productos</h3><p>El stock se arma a partir de tus productos. Cargalos en la pestaña 🏷️ Productos y van a aparecer acá para ponerles cantidad.</p></div>`;return;}
+  const q=busqStock.trim().toLowerCase();
+  const lista=productos
+    .filter(p=>filtroStockCat==='todos'||(p.categoria||'Sin categoría')===filtroStockCat)
+    .filter(p=>!q||p.nombre.toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  if(!lista.length){el.innerHTML=`<div class="empty"><div class="emoji">🔍</div><h3>Sin resultados</h3></div>`;return;}
+  el.innerHTML=lista.map(prod=>{
+    const s=Number(prod.stock)||0;
+    const badge = s<0 ? `<div><span class="stock-badge">Faltan ${-s}</span></div>`
+                : s===0 ? `<div><span class="stock-badge">Agotado</span></div>` : '';
+    return `<div class="ing-card stock-card ${s<=0?'is-cero':''}" data-id="${prod.id}">
+      <div class="ing-header">
+        <div>
+          <div class="ing-nombre">${esc(prod.nombre)}</div>
+          ${prod.categoria?`<span class="ing-cat">${esc(prod.categoria)}</span>`:''}
+          ${badge}
+        </div>
+        <div class="stock-stepper">
+          <button class="stock-btn" data-sact="menos" aria-label="Restar uno">−</button>
+          <input class="stock-input" type="number" inputmode="numeric" step="1" value="${s}" data-sact="set" aria-label="Cantidad en stock">
+          <button class="stock-btn" data-sact="mas" aria-label="Sumar uno">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function fijarStock(id, valor){
+  const prod=productos.find(p=>p.id===id); if(!prod) return;
+  let n=Math.round(Number(valor)); if(isNaN(n)) n=0;
+  prod.stock=n;
+  await guardarProd();
+}
+
+$('#stock-list').addEventListener('click', async e=>{
+  const btn=e.target.closest('[data-sact]'); if(!btn || btn.dataset.sact==='set') return;
+  const card=btn.closest('[data-id]'); if(!card) return;
+  const prod=productos.find(p=>p.id===card.dataset.id); if(!prod) return;
+  const base=Number(prod.stock)||0;
+  await fijarStock(prod.id, btn.dataset.sact==='mas' ? base+1 : base-1);
+  renderStock();
+});
+$('#stock-list').addEventListener('change', async e=>{
+  const inp=e.target.closest('[data-sact="set"]'); if(!inp) return;
+  const card=inp.closest('[data-id]'); if(!card) return;
+  await fijarStock(card.dataset.id, inp.value);
+  renderStock();
+});
+$('#cat-stock-toolbar').addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(!c)return;filtroStockCat=c.dataset.c;renderStock();});
+$('#search-stock').addEventListener('input',e=>{busqStock=e.target.value;renderStock();});
 
 // ====================== RENDER RECETAS ======================
 let busqRec='',filtroRecCat='todos';
