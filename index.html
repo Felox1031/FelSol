@@ -2970,12 +2970,12 @@ function abrirModalRec(id){
   // Costos operativos: defaults 10/10/30 para recetas nuevas, migración de mdo$ legacy
   const esNueva=!rec;
   const tieneCostosNuevos=rec&&(rec.gas!=null||rec.luz!=null);
-  $('#f-rec-gas').value=tieneCostosNuevos?(rec.gas??10):(esNueva?10:10);
-  $('#f-rec-luz').value=tieneCostosNuevos?(rec.luz??10):(esNueva?10:10);
+  $('#f-rec-gas').value=tieneCostosNuevos?(rec.gas??0):(esNueva?0:0);
+  $('#f-rec-luz').value=tieneCostosNuevos?(rec.luz??0):(esNueva?0:0);
   // Si la receta es legacy (tenía mdo en $), lo dejamos en 30 como default
   $('#f-rec-mdo').value=rec?(rec.mdo??30):30;
   $('#f-rec-merma').value=rec?(rec.merma||''):'';
-  $('#f-rec-margen').value=rec?(rec.margen!=null?rec.margen:150):150;
+  $('#f-rec-margen').value=rec?(rec.margen!=null?rec.margen:100):100;
   $('#f-rec-tiempo').value=rec?(rec.tiempo||''):'';
   $('#f-rec-notas').value=rec?(rec.notas||''):'';
   recIngFormHTML(rec?rec.ingredientes:[]);
@@ -2993,11 +2993,11 @@ async function guardarRecModal(){
     categoria:$('#f-rec-cat').value.trim(),
     rinde:parseFloat($('#f-rec-rinde').value)||null,
     rindeUnit:$('#f-rec-rinde-unit').value.trim()||'unidades',
-    gas:parseFloat($('#f-rec-gas').value)??10,
-    luz:parseFloat($('#f-rec-luz').value)??10,
+    gas:parseFloat($('#f-rec-gas').value)??0,
+    luz:parseFloat($('#f-rec-luz').value)??0,
     mdo:parseFloat($('#f-rec-mdo').value)??30,
     merma:parseFloat($('#f-rec-merma').value)||0,
-    margen:parseFloat($('#f-rec-margen').value)??150,
+    margen:parseFloat($('#f-rec-margen').value)??100,
     tiempo:parseFloat($('#f-rec-tiempo').value)||null,
     notas:$('#f-rec-notas').value.trim()||null,
     ingredientes:leerRecIngForm()
