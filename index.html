@@ -28,6 +28,10 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
+  /* Con una hoja/modal abierta, la página de atrás no debe poder scrollear (evita el
+     "rebote" típico de iOS donde el fondo se mueve mientras tocás dentro de la hoja) */
+  body:has(.overlay.open){overflow:hidden}
+  button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   body{
     font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     background:var(--bg);
@@ -121,7 +125,7 @@
   .btn-primary .plus{font-size:1.15rem;line-height:1;margin-top:-1px}
   .search{
     flex:1;min-width:170px;border:1px solid var(--line);background:var(--surface);
-    border-radius:12px;padding:11px 13px;font-size:.92rem;color:var(--ink);font-family:inherit;
+    border-radius:12px;padding:11px 13px;font-size:1rem;color:var(--ink);font-family:inherit;
   }
   .search:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
 
@@ -204,15 +208,15 @@
   .field{margin-bottom:14px}
   .field label{display:block;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:6px}
   .field label .opt{color:var(--muted);font-weight:500}
-  .field input, .field textarea{
+  .field input, .field textarea, .field select{
     width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;
-    font-size:.95rem;font-family:inherit;color:var(--ink);background:var(--bg);
+    font-size:1rem;font-family:inherit;color:var(--ink);background:var(--bg);
   }
-  .field input:focus, .field textarea:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
+  .field input:focus, .field textarea:focus, .field select:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
   .field textarea{resize:vertical;min-height:60px}
   .select-mes{
     width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;
-    font-size:.95rem;font-family:inherit;color:var(--ink);background:var(--bg);
+    font-size:1rem;font-family:inherit;color:var(--ink);background:var(--bg);
   }
   .select-mes:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
   .mes-hint{font-size:.8rem;color:var(--muted);margin:-4px 0 16px;line-height:1.45}
@@ -317,7 +321,7 @@
   .costos-op-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
   .costo-op-field{display:flex;flex-direction:column;gap:4px}
   .costo-op-field label{font-size:.78rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px}
-  .costo-op-field input{border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:.9rem;font-family:inherit;color:var(--ink);background:var(--bg);width:100%}
+  .costo-op-field input{border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:1rem;font-family:inherit;color:var(--ink);background:var(--bg);width:100%}
   .costo-op-field input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
   .costos-op-total{font-size:.8rem;color:var(--muted);font-weight:600;margin-bottom:4px}
   .costos-op-total span{color:var(--brand)}
@@ -343,7 +347,7 @@
   .rec-ing-form-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
   .rec-ing-form-row{background:#FAF4EF;border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:7px}
   .rec-ing-form-top{display:flex;gap:7px;align-items:center}
-  .rec-ing-form-top select,.rec-ing-form-top input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.88rem;font-family:inherit;color:var(--ink);background:var(--bg)}
+  .rec-ing-form-top select,.rec-ing-form-top input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:1rem;font-family:inherit;color:var(--ink);background:var(--bg)}
   .rec-ing-form-top select:focus,.rec-ing-form-top input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
   .rec-ing-form-top .inp-cant-rec{max-width:80px}
   .rec-ing-form-top .sel-unidad{max-width:68px}
@@ -388,7 +392,7 @@
   /* Modal de ítems inline en el form */
   .items-form-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
   .item-form-row{display:flex;gap:7px;align-items:center}
-  .item-form-row input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.88rem;font-family:inherit;color:var(--ink);background:var(--bg)}
+  .item-form-row input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:1rem;font-family:inherit;color:var(--ink);background:var(--bg)}
   .item-form-row input:focus{outline:2px solid var(--brand-soft);border-color:var(--brand);background:#fff}
   .item-form-row .inp-cant{max-width:72px}
   .item-form-row .inp-precio{max-width:88px;display:none}
@@ -485,9 +489,9 @@
     .sheet{padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
     .sheet h2{font-size:1.1rem;margin-bottom:12px}
 
-    /* Inputs más altos para el dedo */
-    .field input,.field textarea,.costo-op-field input,.select-mes{
-      padding:13px 12px;font-size:1rem
+    /* Inputs más altos para el dedo (el tamaño de fuente ya es 16px en la base) */
+    .field input,.field textarea,.field select,.costo-op-field input,.select-mes{
+      padding:13px 12px
     }
 
     /* Sheet actions: botones grandes */
@@ -522,6 +526,10 @@
   .stock-input::-webkit-outer-spin-button,.stock-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .stock-badge{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;margin-top:6px;background:#F7DCDC;color:var(--danger)}
   .stock-card.is-cero .stock-input{color:var(--danger);border-color:#E7B7B7}
+/* ── CAJA (debe y haber) ── */
+.seg button.on-ef{background:var(--amber-soft);color:var(--amber);border-color:#EAD8BD}
+.seg button.on-dig{background:var(--mint-soft);color:var(--mint);border-color:#C7E5D9}
+.seg button.on-rep{background:var(--brand-soft);color:var(--brand);border-color:#EBD6E0}
 </style>
 </head>
 <body>
@@ -572,6 +580,7 @@
       <button class="nav-tab" data-view="recetas">📋 Recetas</button>
       <button class="nav-tab" data-view="productos">🏷️ Productos</button>
       <button class="nav-tab" data-view="stock">📦 Stock</button>
+      <button class="nav-tab" data-view="caja">💰 Caja</button>
     </nav>
   </div>
 </header>
@@ -607,6 +616,7 @@
       <button class="btn-ghost" id="cancelMes">Cancelar</button>
       <button class="btn-primary" id="genMes" style="justify-content:center">Generar PDF</button>
     </div>
+    <button class="btn-ghost" id="cerrarMesBtn" style="width:100%;justify-content:center;margin-top:8px;color:var(--danger);border-color:#E7B7B7">🗄️ Cerrar mes y archivar pedidos</button>
   </div>
 </div>
 
@@ -677,6 +687,29 @@
   <div id="stock-list"></div>
 </div><!-- /vista-stock -->
 
+<!-- VISTA: CAJA -->
+<div class="vista" id="vista-caja">
+  <section class="stats" id="caja-stats"></section>
+  <div class="toolbar">
+    <button class="btn-primary" id="newGastoBtn"><span class="plus">+</span> Nuevo gasto</button>
+    <button class="btn-primary" id="newAjusteBtn" style="background:var(--ink)">⚖ Ajuste</button>
+    <input class="search" id="search-caja" type="text" placeholder="Buscar movimiento…" autocomplete="off">
+  </div>
+  <div class="filters" id="filters-caja">
+    <button class="chip active" data-f="todos">Todos</button>
+    <button class="chip" data-f="ingreso">Ingresos</button>
+    <button class="chip" data-f="gasto">Gastos</button>
+    <button class="chip" data-f="ajuste">Ajustes</button>
+    <span class="group-by" id="groupByMedioCaja">
+      <span class="gb-label">Medio:</span>
+      <button class="gb-btn active" data-g="todos">Todos</button>
+      <button class="gb-btn" data-g="efectivo">Efectivo</button>
+      <button class="gb-btn" data-g="digital">Digital</button>
+    </span>
+  </div>
+  <section class="list" id="caja-list"></section>
+</div><!-- /vista-caja -->
+
 </div><!-- /wrap -->
 
 <!-- Modal nuevo/editar -->
@@ -704,13 +737,7 @@
         <input id="f-fecha" type="date">
       </div>
     </div>
-    <div class="field">
-      <label>Estado</label>
-      <div class="seg" id="seg">
-        <button type="button" data-e="pendiente">Por cobrar</button>
-        <button type="button" data-e="cobrado">Cobrado</button>
-      </div>
-    </div>
+    <p class="mes-hint" style="margin-top:-6px">El pedido se crea como <b>por cobrar</b>. Para registrarlo como cobrado usá el botón de la tarjeta, así el medio de pago (efectivo/digital) queda en Caja.</p>
     <div class="field">
       <label>Artículos / ítems <span class="opt">(opcional)</span></label>
       <label class="auto-monto" for="auto-monto-chk">
@@ -983,12 +1010,90 @@
       <div class="err" id="err-parcial">Ingresá un monto mayor a cero.</div>
     </div>
     <div class="field">
+      <label>Medio de pago</label>
+      <div class="seg" id="seg-medio">
+        <button type="button" data-m="efectivo">Efectivo</button>
+        <button type="button" data-m="digital">Digital</button>
+        <button type="button" data-m="repartir">Repartir</button>
+      </div>
+    </div>
+    <div class="field-row" id="parcial-split" style="display:none">
+      <div class="field"><label for="f-parcial-ef">💵 Efectivo</label><input id="f-parcial-ef" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="f-parcial-dig">💳 Digital</label><input id="f-parcial-dig" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+    </div>
+    <div class="field">
       <label for="f-parcial-nota">Nota <span class="opt">(opcional)</span></label>
       <input id="f-parcial-nota" type="text" placeholder="Ej: seña, cuota 1…" autocomplete="off">
     </div>
     <div class="sheet-actions">
       <button class="btn-ghost" id="cancelParcial">Cancelar</button>
       <button class="btn-primary" id="guardarParcial" style="justify-content:center">Guardar cobro</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet nuevo gasto -->
+<div class="overlay" id="overlayGasto">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gastoTitle" style="max-width:440px">
+    <h2 id="gastoTitle">Nuevo gasto</h2>
+    <div class="field">
+      <label for="f-gasto-concepto">Concepto</label>
+      <input id="f-gasto-concepto" type="text" placeholder="Ej: Harina, nafta, alquiler del horno…" autocomplete="off">
+      <div class="err" id="err-gasto-concepto">Poné en qué se gastó.</div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-gasto-monto">Monto ($)</label>
+        <input id="f-gasto-monto" type="number" inputmode="decimal" min="0.01" step="any" placeholder="0">
+        <div class="err" id="err-gasto-monto">Ingresá un monto válido.</div>
+      </div>
+      <div class="field">
+        <label for="f-gasto-fecha">Fecha</label>
+        <input id="f-gasto-fecha" type="date">
+      </div>
+    </div>
+    <div class="field">
+      <label>Sale de</label>
+      <div class="seg" id="seg-gasto-medio">
+        <button type="button" data-m="efectivo">Efectivo</button>
+        <button type="button" data-m="digital">Digital</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-gasto-nota">Nota <span class="opt">(opcional)</span></label>
+      <input id="f-gasto-nota" type="text" placeholder="Aclaración" autocomplete="off">
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelGasto">Cancelar</button>
+      <button class="btn-primary" id="saveGasto" style="justify-content:center">Guardar gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet ajuste por conteo real -->
+<div class="overlay" id="overlayAjuste">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ajusteTitle" style="max-width:440px">
+    <h2 id="ajusteTitle">Ajuste por conteo real</h2>
+    <p class="mes-hint">Usalo cuando contaste la plata (o revisaste la cuenta digital) y no coincide con lo que dice el sistema. Cargá la diferencia: positiva si hay de más, negativa si falta.</p>
+    <div class="field">
+      <label>Cuenta</label>
+      <div class="seg" id="seg-ajuste-medio">
+        <button type="button" data-m="efectivo">Efectivo</button>
+        <button type="button" data-m="digital">Digital</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-ajuste-monto">Diferencia ($) <span class="opt">(negativo si falta)</span></label>
+      <input id="f-ajuste-monto" type="number" inputmode="decimal" step="any" placeholder="Ej: -500 ó 500">
+      <div class="err" id="err-ajuste-monto">Ingresá un monto distinto de cero.</div>
+    </div>
+    <div class="field">
+      <label for="f-ajuste-nota">Motivo</label>
+      <input id="f-ajuste-nota" type="text" placeholder="Ej: Conteo de caja 22/9, faltante sin explicar" autocomplete="off">
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="cancelAjuste">Cancelar</button>
+      <button class="btn-primary" id="saveAjuste" style="justify-content:center">Guardar ajuste</button>
     </div>
   </div>
 </div>
@@ -1011,17 +1116,19 @@ const cryptoOk = !!(window.crypto && window.crypto.subtle);
 let _memEnc = '';     // respaldo en memoria si el navegador bloquea localStorage
 
 let gh = null;        // {owner, repo, path, branch, token}  (en memoria, ya descifrado)
-let ghSha = null;     // SHA del archivo en GitHub
-let pushPend = false; // hay cambios sin subir
-let pushT = null;     // temporizador para agrupar subidas
 let appKey = null;    // clave AES en memoria, derivada de la contraseña tras el login
 
 // ---- Cifrado con Web Crypto (PBKDF2 + AES-GCM) ----
+// PBKDF2_ITER_NUEVO es el valor con el que se cifra todo acceso creado o renovado de acá
+// en adelante. PBKDF2_ITER_LEGADO es el valor con el que se crearon los vault viejos
+// (v:1), que no guardaban este número — hace falta para poder seguir abriéndolos.
+const PBKDF2_ITER_NUEVO = 600000;
+const PBKDF2_ITER_LEGADO = 150000;
 function bytesB64(bytes){ let s=''; bytes.forEach(b=>s+=String.fromCharCode(b)); return btoa(s); }
 function b64Bytes(b64){ const bin=atob(b64); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i); return a; }
-async function derivarClave(pass, salt){
+async function derivarClave(pass, salt, iterations){
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:150000, hash:'SHA-256'},
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations: iterations || PBKDF2_ITER_NUEVO, hash:'SHA-256'},
     base, {name:'AES-GCM', length:256}, true, ['encrypt','decrypt']);
 }
 
@@ -1075,16 +1182,24 @@ function setVaultRaw(obj){ if(tieneLocal) localStorage.setItem(VAULT_KEY, JSON.s
 function hayVault(){ return !!vaultRaw(); }
 async function crearVault(pass, conf){
   const salt = crypto.getRandomValues(new Uint8Array(16));
-  appKey = await derivarClave(pass, salt);
-  setVaultRaw({ v:1, salt: bytesB64(salt), gh: await cifrar(appKey, conf) });
+  appKey = await derivarClave(pass, salt, PBKDF2_ITER_NUEVO);
+  setVaultRaw({ v:2, iter: PBKDF2_ITER_NUEVO, salt: bytesB64(salt), gh: await cifrar(appKey, conf) });
   gh = conf;
 }
 async function abrirVault(pass){
   const vault = vaultRaw(); if(!vault) return false;
+  const iter = vault.iter || PBKDF2_ITER_LEGADO;   // vault viejo sin el campo -> el valor con el que se creó
   try{
-    const key = await derivarClave(pass, b64Bytes(vault.salt));
+    const key = await derivarClave(pass, b64Bytes(vault.salt), iter);
     const conf = await descifrar(key, vault.gh);   // lanza error si la contraseña está mal
-    appKey = key; gh = conf; return true;
+    appKey = key; gh = conf;
+    if(iter < PBKDF2_ITER_NUEVO){
+      // Vault con parámetros viejos: lo re-guardamos con la misma contraseña pero un
+      // PBKDF2 más fuerte, sin pedirle nada al usuario. Pasa una sola vez, solo,
+      // en el próximo login de cada dispositivo.
+      try{ await crearVault(pass, conf); if(ghOk()) await escribirVaultRemoto(); }catch(e){}
+    }
+    return true;
   }catch(e){ return false; }
 }
 async function actualizarGhEnVault(conf){
@@ -1093,7 +1208,17 @@ async function actualizarGhEnVault(conf){
   vault.gh = await cifrar(appKey, conf);
   setVaultRaw(vault); gh = conf;
 }
-function borrarVault(){ try{ if(tieneLocal){ localStorage.removeItem(VAULT_KEY); localStorage.removeItem(CACHE_KEY); } }catch(e){} _vaultMem=null; _memEnc=''; gh=null; appKey=null; ghSha=null; vaultSha=null; }
+function borrarVault(){
+  try{
+    if(tieneLocal){
+      localStorage.removeItem(VAULT_KEY);
+      Object.values(CACHE_KEYS).forEach(k=>localStorage.removeItem(k));
+      Object.values(BASE_KEYS).forEach(k=>localStorage.removeItem(k));
+    }
+  }catch(e){}
+  _vaultMem=null; _memEnc=''; gh=null; appKey=null; vaultSha=null;
+  Object.values(shaRefs).forEach(r=>r.val=null);
+}
 
 // ---- Acceso compartido entre dispositivos: vault.json en el repo público de la app ----
 // Deriva owner/repo del propio dominio github.io (ej: usuario.github.io/dulcero/)
@@ -1143,33 +1268,86 @@ async function escribirVaultRemoto(){
   }catch(e){ return {ok:false, reason:'red'}; }
 }
 
-// ---- Caché de pedidos (también cifrada con la misma clave) ----
-async function leerCacheCifrada(){
+// ---- Caché local cifrada + sincronización robusta (fusión de 3 vías) ----
+// Por cada colección se guardan DOS cosas en localStorage, cifradas con la misma clave:
+//   dulcero:cache:<col>  -> lo que ve la app ahora (con cambios propios sin subir)
+//   dulcero:base:<col>   -> la última versión que sabemos que está en GitHub
+// La diferencia entre ambas es "lo que cambié pero todavía no subí". Al sincronizar,
+// se pide lo que hay AHORA en GitHub y se fusiona con esa diferencia, en vez de pisar
+// el archivo remoto entero con lo que haya en memoria. Así dos dispositivos escribiendo
+// casi al mismo tiempo no se borran los cambios entre sí.
+const CACHE_KEYS = {
+  pedidos:      CACHE_KEY,
+  ingredientes: 'dulcero:cache:ing',
+  recetas:      'dulcero:cache:rec',
+  productos:    'dulcero:cache:prod',
+  caja:         'dulcero:cache:caja',
+};
+const BASE_KEYS = {
+  pedidos:      'dulcero:base',
+  ingredientes: 'dulcero:base:ing',
+  recetas:      'dulcero:base:rec',
+  productos:    'dulcero:base:prod',
+  caja:         'dulcero:base:caja',
+};
+const FILES_FIJOS = { ingredientes:'materias.json', recetas:'recetas.json', productos:'productos.json', caja:'caja.json' };
+function nombreArchivo(col){ return col==='pedidos' ? ((gh && gh.path) || 'pedidos.json') : FILES_FIJOS[col]; }
+const shaRefs = { pedidos:{val:null}, ingredientes:{val:null}, recetas:{val:null}, productos:{val:null}, caja:{val:null} };
+
+async function leerCacheColeccion(col){
   if(!appKey) return [];
   try{
-    const raw = tieneLocal ? localStorage.getItem(CACHE_KEY) : _memEnc;
+    const raw = tieneLocal ? localStorage.getItem(CACHE_KEYS[col]) : (col==='pedidos' ? _memEnc : null);
     if(!raw) return [];
     const arr = await descifrar(appKey, JSON.parse(raw));
     return Array.isArray(arr) ? arr : [];
   }catch(e){ return []; }
 }
-async function escribirCacheCifrada(){
+async function escribirCacheColeccion(col, datos){
   if(!appKey) return;
   try{
-    const s = JSON.stringify(await cifrar(appKey, pedidos));
-    if(tieneLocal) localStorage.setItem(CACHE_KEY, s); else _memEnc = s;
+    const s = JSON.stringify(await cifrar(appKey, datos));
+    if(tieneLocal) localStorage.setItem(CACHE_KEYS[col], s); else if(col==='pedidos') _memEnc = s;
   }catch(e){}
+}
+async function leerBase(col){
+  if(!appKey || !tieneLocal) return null; // null = todavía no sincronizamos nunca esta colección
+  try{
+    const raw = localStorage.getItem(BASE_KEYS[col]);
+    if(!raw) return null;
+    return await descifrar(appKey, JSON.parse(raw));
+  }catch(e){ return null; }
+}
+async function escribirBase(col, datos){
+  if(!appKey || !tieneLocal) return;
+  try{ localStorage.setItem(BASE_KEYS[col], JSON.stringify(await cifrar(appKey, datos))); }catch(e){}
 }
 
 function ghOk(){ return !!(gh && gh.owner && gh.repo && gh.token); }
+
+// Avisa (una vez por sesión) si el repo de datos quedó público: ahí vive todo en texto
+// plano (pedidos, clientes, plata) — si no es privado, lo puede leer cualquiera.
+let _repoCheckHecho = false;
+async function verificarPrivacidadRepo(){
+  if(!ghOk() || _repoCheckHecho) return;
+  _repoCheckHecho = true;
+  try{
+    const r = await fetch(`https://api.github.com/repos/${gh.owner}/${gh.repo}`, {headers: ghHeaders()});
+    if(!r.ok) return; // si no se puede consultar (permiso limitado, etc.) no mostramos una falsa alarma
+    const info = await r.json();
+    if(info && info.private === false){
+      toast('⚠️ El repositorio de datos es PÚBLICO: cualquiera puede ver tus pedidos y tu Caja. Cambialo a privado en GitHub.');
+    }
+  }catch(e){}
+}
 
 // Base64 seguro para textos con acentos y emojis
 function utf8B64(s){ return btoa(unescape(encodeURIComponent(s))); }
 function b64Utf8(b){ return decodeURIComponent(escape(atob(String(b).replace(/\s/g,'')))); }
 function ghHeaders(){ return {'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}; }
-function ghUrl(conRef){
-  const u = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${encodeURI(gh.path)}`;
-  return conRef ? `${u}?ref=${encodeURIComponent(gh.branch||'main')}` : u;
+function ghUrlExtra(filename){
+  const u = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${encodeURI(filename)}`;
+  return { base: u, conRef: `${u}?ref=${encodeURIComponent(gh.branch||'main')}` };
 }
 
 // Indicador de estado en el encabezado
@@ -1179,190 +1357,157 @@ function setSync(state){
   if(!ghOk()){ st = tieneLocal ? 'local' : 'mem'; txt = tieneLocal ? 'Guardado en este equipo' : 'Solo esta sesión'; }
   else if(state==='sync'){ st='sync'; txt='Sincronizando…'; }
   else if(state==='err'){ st='err'; txt='Error de GitHub'; }
+  else if(state==='conflicto'){ st='err'; txt='Resolviendo un choque de datos…'; }
   else { st='ok'; txt='Sincronizado'; }
   el.dataset.state = st; el.textContent = txt;
 }
 
-// Baja los datos desde GitHub (fuente de verdad entre dispositivos)
-async function ghPull(){
+// Trae el contenido actual de una colección desde GitHub ([] si el archivo no existe aún)
+async function ghFetchColeccion(col){
+  const {conRef} = ghUrlExtra(nombreArchivo(col));
+  const r = await fetch(conRef, {headers: ghHeaders(), cache:'no-store'});
+  if(r.status===404){ shaRefs[col].val = null; return []; }
+  if(!r.ok) throw new Error('http:'+r.status);
+  const j = await r.json(); shaRefs[col].val = j.sha;
+  const arr = JSON.parse(j.content ? b64Utf8(j.content) : '[]');
+  return Array.isArray(arr) ? arr : [];
+}
+
+// Fusión de 3 vías (como un merge de git):
+//   base   = última versión que sabíamos que estaba en GitHub
+//   local  = lo que tenemos ahora en memoria (con cambios propios sin subir)
+//   remoto = lo que hay AHORA MISMO en GitHub (puede traer cambios de OTRO dispositivo)
+// Reglas: si algo se borró acá, se borra. Si algo es nuevo acá o nuevo en el remoto, se
+// conserva. Si existe en ambos lados y lo tocamos acá, gana el cambio local. Si existe en
+// ambos lados y NO lo tocamos acá, se toma lo que diga el remoto (por si otro dispositivo
+// lo cambió mientras tanto).
+function fusionar3vias(base, local, remoto){
+  const baseM = new Map((base||[]).map(x=>[x.id,x]));
+  const localM = new Map((local||[]).map(x=>[x.id,x]));
+  const remotoM = new Map((remoto||[]).map(x=>[x.id,x]));
+  const ids = new Set([...baseM.keys(), ...localM.keys(), ...remotoM.keys()]);
+  const resultado = [];
+  ids.forEach(id=>{
+    const enBase = baseM.has(id), enLocal = localM.has(id), enRemoto = remotoM.has(id);
+    if(!enLocal && enBase) return; // lo borramos acá: se borra (gana el borrado local)
+    if(enLocal && !enBase){ resultado.push(localM.get(id)); return; } // nuevo local
+    if(!enLocal && !enBase && enRemoto){ resultado.push(remotoM.get(id)); return; } // nuevo de otro dispositivo
+    if(enLocal && enBase){
+      const l = localM.get(id), b = baseM.get(id), r = remotoM.get(id);
+      const cambiadoLocal = JSON.stringify(l) !== JSON.stringify(b);
+      resultado.push(cambiadoLocal ? l : (r || l));
+    }
+  });
+  return resultado;
+}
+
+// Sube una colección resolviendo conflictos con la fusión de 3 vías. Si otro dispositivo
+// escribió justo antes (409/422), vuelve a traer lo último y reintenta (hasta 5 veces) en
+// vez de pisar a ciegas. Al terminar, deja la variable en memoria de esa colección con el
+// resultado fusionado, así también se ven los cambios que subió el otro dispositivo.
+async function syncPush(col){
+  if(!ghOk()) return {ok:false, reason:'noconfig'};
+  setSync('sync');
+  const local = colecciones[col].get();
+  for(let intento=0; intento<5; intento++){
+    let remoto;
+    try{ remoto = await ghFetchColeccion(col); }
+    catch(e){ setSync('err'); return {ok:false, reason:'red'}; }
+    const base = await leerBase(col);
+    const resultado = fusionar3vias(base, local, remoto);
+    const {base:url} = ghUrlExtra(nombreArchivo(col));
+    const body = { message:`Actualiza ${nombreArchivo(col)} (${new Date().toLocaleString('es-AR')})`,
+                   content: utf8B64(JSON.stringify(resultado, null, 2)), branch: gh.branch||'main' };
+    if(shaRefs[col].val) body.sha = shaRefs[col].val;
+    try{
+      const r = await fetch(url, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      if(r.status===409 || r.status===422){ setSync('conflicto'); continue; }
+      if(r.status===401 || r.status===403){ setSync('err'); return {ok:false, reason:'auth'}; }
+      if(!r.ok){ setSync('err'); return {ok:false, reason:'http'}; }
+      const j = await r.json(); if(j.content?.sha) shaRefs[col].val = j.content.sha;
+      colecciones[col].set(resultado);
+      await escribirCacheColeccion(col, resultado);
+      await escribirBase(col, resultado);
+      setSync('ok');
+      return {ok:true, datos:resultado};
+    }catch(e){ setSync('err'); return {ok:false, reason:'red'}; }
+  }
+  setSync('err');
+  return {ok:false, reason:'conflicto-persistente'};
+}
+
+// Trae una colección desde GitHub. Si hay cambios locales sin subir todavía, los conserva
+// (fusiona) en vez de pisarlos con lo remoto.
+async function syncPull(col){
   if(!ghOk()) return {ok:false, reason:'noconfig'};
   setSync('sync');
   try{
-    const r = await fetch(ghUrl(true), {headers: ghHeaders(), cache:'no-store'});
-    if(r.status === 404){ ghSha = null; setSync('ok'); return {ok:true, nuevo:true}; }
-    if(r.status === 401 || r.status === 403){ setSync('err'); return {ok:false, reason:'auth'}; }
-    if(!r.ok){ setSync('err'); return {ok:false, reason:'http'}; }
-    const j = await r.json();
-    ghSha = j.sha;
-    const arr = JSON.parse(j.content ? b64Utf8(j.content) : '[]');
-    pedidos = Array.isArray(arr) ? arr : [];
-    await escribirCacheCifrada(); setSync('ok');
-    return {ok:true};
+    const remoto = await ghFetchColeccion(col);
+    const base = await leerBase(col);
+    const local = colecciones[col].get();
+    const resultado = base ? fusionar3vias(base, local, remoto) : remoto;
+    colecciones[col].set(resultado);
+    await escribirCacheColeccion(col, resultado);
+    await escribirBase(col, resultado);
+    setSync('ok');
+    return {ok:true, datos:resultado};
   }catch(e){ setSync('err'); return {ok:false, reason:'red'}; }
 }
 
-// Sube los datos a GitHub (un commit). Reintenta si el SHA quedó viejo.
-async function ghPushNow(){
+// Agrupa varios guardados seguidos en una sola subida. La Caja no agrupa: la plata sube al toque.
+const pushTimers = {};
+function syncPushDebounced(col, ms){
   if(!ghOk()) return;
   setSync('sync');
-  const body = { message:`Actualiza pedidos (${new Date().toLocaleString('es-AR')})`,
-                 content: utf8B64(JSON.stringify(pedidos, null, 2)), branch: gh.branch||'main' };
-  if(ghSha) body.sha = ghSha;
-  try{
-    let r = await fetch(ghUrl(false), {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    if(r.status === 409 || r.status === 422){
-      const g = await fetch(ghUrl(true), {headers: ghHeaders(), cache:'no-store'});
-      if(g.ok){ const gj = await g.json(); ghSha = gj.sha; body.sha = ghSha; }
-      r = await fetch(ghUrl(false), {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    }
-    if(!r.ok){ setSync('err'); pushPend = true; return; }
-    const j = await r.json();
-    ghSha = (j.content && j.content.sha) ? j.content.sha : ghSha;
-    pushPend = false; setSync('ok');
-  }catch(e){ setSync('err'); pushPend = true; }
-}
-function ghPushDebounced(){
-  if(!ghOk()) return;
-  pushPend = true; setSync('sync');
-  clearTimeout(pushT); pushT = setTimeout(ghPushNow, 800);
+  clearTimeout(pushTimers[col]);
+  pushTimers[col] = setTimeout(()=>syncPush(col), ms==null?800:ms);
 }
 
-// API que usa el resto de la app
-async function cargar(){ return await leerCacheCifrada(); }              // arranque desde caché cifrada
-async function guardar(){ await escribirCacheCifrada(); ghPushDebounced(); } // guarda local cifrado y sube a GitHub
+// ---- API que usa el resto de la app (mismos nombres de siempre; por abajo cambió todo) ----
+async function cargar(){ return await leerCacheColeccion('pedidos'); }
+async function escribirCacheCifrada(){ await escribirCacheColeccion('pedidos', pedidos); }
+async function leerCacheIng(){ return await leerCacheColeccion('ingredientes'); }
+async function escribirCacheIng(){ await escribirCacheColeccion('ingredientes', ingredientes); }
+async function leerCacheRec(){ return await leerCacheColeccion('recetas'); }
+async function escribirCacheRec(){ await escribirCacheColeccion('recetas', recetas); }
+async function leerCacheProd(){ return await leerCacheColeccion('productos'); }
+async function escribirCacheProd(){ await escribirCacheColeccion('productos', productos); }
+async function leerCacheCaja(){ return await leerCacheColeccion('caja'); }
+async function escribirCacheCaja(){ await escribirCacheColeccion('caja', caja); }
 
-// ---- Ingredientes y Recetas: caché cifrada separada ----
-const CACHE_ING_KEY = 'dulcero:cache:ing';
-const CACHE_REC_KEY = 'dulcero:cache:rec';
-const CACHE_PROD_KEY = 'dulcero:cache:prod';
+async function guardar(){ await escribirCacheCifrada(); syncPushDebounced('pedidos', 800); }
+async function guardarIng(){ await escribirCacheIng(); syncPushDebounced('ingredientes', 800); }
+async function guardarRec(){ await escribirCacheRec(); syncPushDebounced('recetas', 800); }
+async function guardarProd(){ await escribirCacheProd(); syncPushDebounced('productos', 800); }
+async function guardarCaja(){ await escribirCacheCaja(); syncPushDebounced('caja', 0); } // la plata no espera agrupamiento
 
-async function leerCacheIng(){
-  if(!appKey) return [];
-  try{
-    const raw = tieneLocal ? localStorage.getItem(CACHE_ING_KEY) : null;
-    if(!raw) return [];
-    const arr = await descifrar(appKey, JSON.parse(raw));
-    return Array.isArray(arr) ? arr : [];
-  }catch(e){ return []; }
-}
-async function escribirCacheIng(){
-  if(!appKey) return;
-  try{
-    const s = JSON.stringify(await cifrar(appKey, ingredientes));
-    if(tieneLocal) localStorage.setItem(CACHE_ING_KEY, s);
-  }catch(e){}
-}
-async function leerCacheRec(){
-  if(!appKey) return [];
-  try{
-    const raw = tieneLocal ? localStorage.getItem(CACHE_REC_KEY) : null;
-    if(!raw) return [];
-    const arr = await descifrar(appKey, JSON.parse(raw));
-    return Array.isArray(arr) ? arr : [];
-  }catch(e){ return []; }
-}
-async function escribirCacheRec(){
-  if(!appKey) return;
-  try{
-    const s = JSON.stringify(await cifrar(appKey, recetas));
-    if(tieneLocal) localStorage.setItem(CACHE_REC_KEY, s);
-  }catch(e){}
-}
-async function leerCacheProd(){
-  if(!appKey) return [];
-  try{
-    const raw = tieneLocal ? localStorage.getItem(CACHE_PROD_KEY) : null;
-    if(!raw) return [];
-    const arr = await descifrar(appKey, JSON.parse(raw));
-    return Array.isArray(arr) ? arr : [];
-  }catch(e){ return []; }
-}
-async function escribirCacheProd(){
-  if(!appKey) return;
-  try{
-    const s = JSON.stringify(await cifrar(appKey, productos));
-    if(tieneLocal) localStorage.setItem(CACHE_PROD_KEY, s);
-  }catch(e){}
-}
-
-// Pull/push para ingredientes y recetas (archivos separados en GitHub)
-function ghUrlExtra(filename){
-  const u = `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${encodeURI(filename)}`;
-  return { base: u, conRef: `${u}?ref=${encodeURIComponent(gh.branch||'main')}` };
-}
-let ghShaIng = null, ghShaRec = null;
-
-async function ghPullExtra(filename, sha, onData){
-  if(!ghOk()) return {ok:false};
-  const {conRef} = ghUrlExtra(filename);
-  try{
-    const r = await fetch(conRef, {headers: ghHeaders(), cache:'no-store'});
-    if(r.status===404) return {ok:true, nuevo:true};
-    if(!r.ok) return {ok:false};
-    const j = await r.json();
-    if(sha) sha.val = j.sha; else sha = {val:j.sha};
-    const arr = JSON.parse(j.content ? b64Utf8(j.content) : '[]');
-    if(onData) onData(Array.isArray(arr)?arr:[], j.sha);
-    return {ok:true};
-  }catch(e){ return {ok:false}; }
-}
-
-async function ghPushExtra(filename, shaRef, datos){
-  if(!ghOk()) return;
-  const {base, conRef} = ghUrlExtra(filename);
-  const body = { message:`Actualiza ${filename} (${new Date().toLocaleString('es-AR')})`,
-                 content: utf8B64(JSON.stringify(datos, null, 2)), branch: gh.branch||'main' };
-  if(shaRef.val) body.sha = shaRef.val;
-  try{
-    let r = await fetch(base, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    if(r.status===409||r.status===422){
-      const g = await fetch(conRef, {headers: ghHeaders(), cache:'no-store'});
-      if(g.ok){ const gj = await g.json(); shaRef.val = gj.sha; body.sha = shaRef.val; }
-      r = await fetch(base, {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    }
-    if(r.ok){ const j = await r.json(); if(j.content?.sha) shaRef.val = j.content.sha; }
-  }catch(e){}
-}
-
-const ghShaIngRef = {val:null}, ghShaRecRef = {val:null}, ghShaProdRef = {val:null};
-let pushIngT = null, pushRecT = null, pushProdT = null;
-
-async function guardarIng(){
-  await escribirCacheIng();
-  if(ghOk()){
-    clearTimeout(pushIngT);
-    pushIngT = setTimeout(()=>ghPushExtra('materias.json', ghShaIngRef, ingredientes), 800);
-  }
-}
-async function guardarRec(){
-  await escribirCacheRec();
-  if(ghOk()){
-    clearTimeout(pushRecT);
-    pushRecT = setTimeout(()=>ghPushExtra('recetas.json', ghShaRecRef, recetas), 800);
-  }
-}
-async function guardarProd(){
-  await escribirCacheProd();
-  if(ghOk()){
-    clearTimeout(pushProdT);
-    pushProdT = setTimeout(()=>ghPushExtra('productos.json', ghShaProdRef, productos), 800);
-  }
-}
 
 // ---- Estado ----
 let pedidos = [];
 let ingredientes = [];
 let recetas = [];
 let productos = [];
+let caja = [];
 let filtroProdCat = 'todos';
 let busqProd = '';
 let filtroStockCat = 'todos';
 let busqStock = '';
+let filtroCajaTipo = 'todos';    // 'todos'|'ingreso'|'gasto'|'ajuste'
+let filtroCajaMedio = 'todos';   // 'todos'|'efectivo'|'digital'
+let busqCaja = '';
 let filtro = 'todos';
 let busqueda = '';
 let editandoId = null;
-let estadoForm = 'pendiente';
 let modoAgrupar = 'pedido';   // 'pedido' (día en que se cargó) o 'entrega'
+
+// Puente entre el motor de sincronización (más arriba) y estas variables de estado.
+const colecciones = {
+  pedidos:      { get:()=>pedidos,      set:v=>{ pedidos=v; } },
+  ingredientes: { get:()=>ingredientes, set:v=>{ ingredientes=v; } },
+  recetas:      { get:()=>recetas,      set:v=>{ recetas=v; } },
+  productos:    { get:()=>productos,    set:v=>{ productos=v; } },
+  caja:         { get:()=>caja,         set:v=>{ caja=v; } },
+};
 
 // ---- Utilidades ----
 const $ = s => document.querySelector(s);
@@ -1497,7 +1642,7 @@ function cardHTML(p){
         <span class="cobro-cobrado">✓ ${money(cp)} cobrado (${pct}%)</span>
         <span class="cobro-restante">${money(restante)} restante</span>
       </div>
-      ${p.cobros && p.cobros.length ? `<div class="cobro-historial">${p.cobros.map((c,i)=>`<span class="cobro-chip">${money(c.monto)}${c.nota?' · '+esc(c.nota):''}<button title="Quitar este cobro" data-act="quitarcobro" data-id="${p.id}" data-ci="${i}">×</button></span>`).join('')}</div>` : ''}
+      ${p.cobros && p.cobros.length ? `<div class="cobro-historial">${p.cobros.map(c=>`<span class="cobro-chip">${c.medio==='efectivo'?'💵':'💳'} ${money(c.monto)}${c.nota?' · '+esc(c.nota):''}<button title="Quitar este cobro" data-act="quitarcobro" data-id="${p.id}" data-ci="${c.id}">×</button></span>`).join('')}</div>` : ''}
     </div>` : '';
 
   // Resumen de ítems
@@ -1776,16 +1921,54 @@ $('#overlayItems').addEventListener('click', e=>{ if(e.target.id==='overlayItems
 // ---- Cobro parcial ----
 let parcialId = null;
 
-function abrirParcial(id){
+function retractarCobroSync(p, cobroId){
+  // Saca un cobro puntual de un pedido y su movimiento espejo en Caja (si no está
+  // archivado por un cierre de mes). Devuelve el cobro sacado, o null si no existía.
+  if(!p.cobros) return null;
+  const idx = p.cobros.findIndex(c=>c.id===cobroId);
+  if(idx<0) return null;
+  const cobro = p.cobros[idx];
+  p.cobros.splice(idx, 1);
+  const mIdx = caja.findIndex(m=>m.cobroId===cobroId && m.origen!=='cierre');
+  if(mIdx>=0) caja.splice(mIdx, 1);
+  return cobro;
+}
+
+let medioParcial = 'efectivo'; // 'efectivo'|'digital'|'repartir'
+function setMedioParcial(m){
+  medioParcial = m;
+  document.querySelectorAll('#seg-medio button').forEach(b=>{
+    b.className = b.dataset.m===m ? ('on-'+(m==='efectivo'?'ef':m==='digital'?'dig':'rep')) : '';
+  });
+  $('#parcial-split').style.display = m==='repartir' ? 'flex' : 'none';
+  const montoInp = $('#f-parcial');
+  montoInp.readOnly = (m==='repartir');
+  montoInp.classList.toggle('calc-auto', m==='repartir');
+  if(m==='repartir') recalcularSplitParcial();
+}
+function recalcularSplitParcial(){
+  const ef = parseFloat($('#f-parcial-ef').value) || 0;
+  const dig = parseFloat($('#f-parcial-dig').value) || 0;
+  $('#f-parcial').value = (ef+dig) ? Math.round((ef+dig)*100)/100 : '';
+}
+$('#seg-medio').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setMedioParcial(b.dataset.m); });
+$('#f-parcial-ef').addEventListener('input', recalcularSplitParcial);
+$('#f-parcial-dig').addEventListener('input', recalcularSplitParcial);
+
+let parcialEsCierre = false;
+function abrirParcial(id, opts={}){
   const p = pedidos.find(x=>x.id===id); if(!p) return;
   parcialId = id;
+  parcialEsCierre = !!opts.esCierre;
   const cp = cobradoParcial(p);
   const restante = p.monto - cp;
-  $('#parcialTitle').textContent = `Cobro parcial — ${p.cliente}`;
+  $('#parcialTitle').textContent = parcialEsCierre ? `Cerrar pedido — ${p.cliente}` : `Cobro parcial — ${p.cliente}`;
   $('#parcial-info').textContent = `Total: ${money(p.monto)} · Ya cobrado: ${money(cp)} · Restante: ${money(restante)}`;
-  $('#f-parcial').value = '';
+  $('#f-parcial').value = opts.presetMonto!=null ? opts.presetMonto : '';
   $('#f-parcial-nota').value = '';
+  $('#f-parcial-ef').value = ''; $('#f-parcial-dig').value = '';
   $('#err-parcial').style.display = 'none';
+  setMedioParcial('efectivo');
   $('#overlayParcial').classList.add('open');
   setTimeout(()=>$('#f-parcial').focus(), 50);
 }
@@ -1798,12 +1981,31 @@ async function guardarParcial(){
   if(!montoRaw || isNaN(monto) || monto <= 0){
     $('#err-parcial').style.display = 'block'; return;
   }
+  let partes = [];
+  if(medioParcial==='repartir'){
+    const ef = parseFloat($('#f-parcial-ef').value) || 0;
+    const dig = parseFloat($('#f-parcial-dig').value) || 0;
+    if(ef<=0 && dig<=0){ $('#err-parcial').style.display = 'block'; return; }
+    if(ef>0) partes.push({medio:'efectivo', monto:ef});
+    if(dig>0) partes.push({medio:'digital', monto:dig});
+  } else {
+    partes.push({medio: medioParcial, monto});
+  }
   $('#err-parcial').style.display = 'none';
   if(!p.cobros) p.cobros = [];
   const nota = $('#f-parcial-nota').value.trim();
-  p.cobros.push({ monto, nota, fecha: hoyISO() });
+  const fecha = hoyISO();
+  partes.forEach(parte=>{
+    const cobro = { id: uid(), monto: parte.monto, medio: parte.medio, nota, fecha, auto: parcialEsCierre };
+    p.cobros.push(cobro);
+    caja.push({
+      id: uid(), fecha, tipo:'ingreso', medio: parte.medio, monto: parte.monto,
+      concepto: p.cliente, nota, pedidoId: p.id, cobroId: cobro.id,
+      auto: parcialEsCierre, origen:'pedido', creado: new Date().toISOString(),
+    });
+  });
 
-  // Si la suma de cobros parciales cubre o supera el total, marcamos como cobrado
+  // Si la suma de cobros cubre o supera el total, marcamos como cobrado
   const totalCobrado = cobradoParcial(p);
   if(totalCobrado >= p.monto){
     p.estado = 'cobrado';
@@ -1811,48 +2013,67 @@ async function guardarParcial(){
     toast('¡Pedido cobrado completamente! 🎉');
   } else {
     cerrarParcial();
-    toast(`Cobro parcial registrado · Restante: ${money(p.monto - totalCobrado)}`);
+    toast(`Cobro registrado · Restante: ${money(p.monto - totalCobrado)}`);
   }
-  await guardar(); render();
+  await guardar(); await guardarCaja(); render();
 }
 
-async function quitarCobro(id, idx){
+async function quitarCobro(id, cobroId){
   const p = pedidos.find(x=>x.id===id); if(!p || !p.cobros) return;
-  const monto = p.cobros[idx]?.monto;
+  const cobro = p.cobros.find(c=>c.id===cobroId); if(!cobro) return;
   const ok = await confirmar({
     titulo: 'Quitar cobro parcial',
-    mensaje: `¿Quitar el cobro de ${money(monto)}?`,
+    mensaje: `¿Quitar el cobro de ${money(cobro.monto)} (${cobro.medio==='efectivo'?'Efectivo':'Digital'})?`,
     ok: 'Quitar', peligro: true
   });
   if(!ok) return;
-  p.cobros.splice(idx, 1);
-  await guardar(); render(); toast('Cobro parcial eliminado');
+  retractarCobroSync(p, cobroId);
+  await guardar(); await guardarCaja(); render(); toast('Cobro parcial eliminado');
 }
 
 // ---- Acciones sobre pedidos ----
 async function toggleEstado(id){
   const p = pedidos.find(x=>x.id===id); if(!p) return;
   if(p.estado==='cobrado'){
+    // Reabrir: retractamos SOLO los cobros que generó el sistema solo al cerrar el
+    // pedido (auto:true). Lo que se cargó a mano con "+ Cobro parcial" queda intacto,
+    // porque esa plata sí entró de verdad.
+    const idsAuto = (p.cobros||[]).filter(c=>c.auto).map(c=>c.id);
+    let retirado = 0;
+    idsAuto.forEach(cid=>{ const c = retractarCobroSync(p, cid); if(c) retirado += c.monto; });
     p.estado = 'pendiente';
-    // Al reabrir, conservamos los cobros parciales (no los borramos)
-  } else {
-    p.estado = 'cobrado';
+    await guardar(); await guardarCaja(); render();
+    toast(retirado>0
+      ? `Por cobrar — se retractó ${money(retirado)} que había cerrado el sistema solo`
+      : 'Marcado como por cobrar');
+    return;
   }
-  await guardar(); render();
-  toast(p.estado==='cobrado' ? '¡Pedido cobrado! 🎉' : 'Marcado como por cobrar');
+  // Cerrar el pedido: si ya estaba cubierto por cobros manuales, solo cambia el estado.
+  // Si falta plata, pedimos el medio antes de darlo por cobrado (para que la Caja sea real).
+  const restante = restantePedido(p);
+  if(restante <= 0){
+    p.estado = 'cobrado';
+    await guardar(); render();
+    toast('¡Pedido cobrado! 🎉');
+    return;
+  }
+  abrirParcial(id, { esCierre:true, presetMonto: restante });
 }
 async function borrar(id){
   const p = pedidos.find(x=>x.id===id); if(!p) return;
-  const ok = await confirmar({
-    titulo:'Borrar pedido',
-    mensaje:`¿Seguro que querés borrar el pedido de ${p.cliente}? Esta acción no se puede deshacer.`,
-    ok:'Borrar', peligro:true
-  });
+  const movimientos = caja.filter(m=>m.pedidoId===id && m.origen!=='cierre');
+  const montoRetractado = movimientos.reduce((s,m)=>s+m.monto,0);
+  const mensaje = movimientos.length
+    ? `¿Seguro que querés borrar el pedido de ${p.cliente}? Esto también va a quitar ${money(montoRetractado)} que tenías registrado en Caja para este pedido. Esta acción no se puede deshacer.`
+    : `¿Seguro que querés borrar el pedido de ${p.cliente}? Esta acción no se puede deshacer.`;
+  const ok = await confirmar({ titulo:'Borrar pedido', mensaje, ok:'Borrar', peligro:true });
   if(!ok) return;
   await revertirStock(p);
+  caja = caja.filter(m=>!(m.pedidoId===id && m.origen!=='cierre'));
   pedidos = pedidos.filter(x=>x.id!==id);
-  await guardar(); render(); toast('Pedido borrado');
+  await guardar(); await guardarCaja(); render(); toast('Pedido borrado');
   if(vistaActual==='stock') renderStock();
+  if(vistaActual==='caja') renderCaja();
 }
 
 // ---- Modal ----
@@ -1866,7 +2087,6 @@ function abrirModal(id){
   $('#f-fecha').value   = p ? (p.entrega||'') : '';
   $('#f-nota').value    = p ? (p.nota||'') : '';
   itemsFormHTML(p ? (p.items||[]) : []);
-  setEstadoForm(p ? p.estado : 'pendiente');
   // Datalist con los productos precargados (para el autocompletado de precio)
   $('#productos-list').innerHTML = productos
     .slice().sort((a,b)=>a.nombre.localeCompare(b.nombre))
@@ -1878,13 +2098,6 @@ function abrirModal(id){
   setTimeout(()=>$('#f-cliente').focus(), 50);
 }
 function cerrarModal(){ $('#overlay').classList.remove('open'); editandoId=null; }
-function setEstadoForm(e){
-  estadoForm = e;
-  document.querySelectorAll('#seg button').forEach(b=>{
-    const on = b.dataset.e===e;
-    b.className = on ? (e==='cobrado'?'on-cob':'on-pend') : '';
-  });
-}
 async function guardarPedido(){
   if(autoMontoOn) recalcularMonto();   // aseguro que el monto refleje los artículos
   const cliente = $('#f-cliente').value.trim();
@@ -1902,7 +2115,6 @@ async function guardarPedido(){
     autoMonto: autoMontoOn,
     entrega: $('#f-fecha').value || '',
     nota: $('#f-nota').value.trim(),
-    estado: estadoForm,
     items: (() => {
       const nuevos = leerItemsForm();
       if(editandoId){
@@ -1918,11 +2130,14 @@ async function guardarPedido(){
   };
   let pRef;
   if(editandoId){
+    // El estado ('pendiente'/'cobrado') y los cobros NO se tocan desde este formulario:
+    // solo cambian desde los botones de la tarjeta, así el dinero en Caja siempre
+    // queda ligado a una acción de cobro real, con su medio de pago.
     pRef = pedidos.find(x=>x.id===editandoId);
     Object.assign(pRef, datos);
     toast('Pedido actualizado');
   } else {
-    pRef = { id: uid(), creado: hoyISO(), ...datos };
+    pRef = { id: uid(), creado: hoyISO(), estado:'pendiente', cobros:[], ...datos };
     pedidos.push(pRef);
     toast('Pedido guardado ✓');
   }
@@ -1970,7 +2185,7 @@ function generarReporte(){
 
   const filas = delMes.map(p=>{
     const cp = cobradoParcial(p);
-    const parcialTag = (!p.estado==='cobrado' && cp > 0)
+    const parcialTag = (p.estado!=='cobrado' && cp > 0)
       ? `<span class="tag" style="background:#E2F2EC;color:#15795C;margin-left:4px">+${money(cp)}</span>` : '';
     return `
     <tr class="${p.estado==='cobrado'?'r-cob':'r-pend'}">
@@ -2079,12 +2294,11 @@ async function conectarGh(){
   };
   if(!c.owner || !c.repo || !c.token){ $('#gh-estado').textContent = 'Completá usuario, repositorio y token.'; return; }
   const prev = gh, localPrev = pedidos.slice();
-  gh = c; ghSha = null;
+  gh = c; shaRefs.pedidos.val = null;
   $('#gh-estado').textContent = 'Probando conexión…';
-  const res = await ghPull();
+  const res = await syncPull('pedidos');
   if(res.ok){
-    if(res.nuevo){ pedidos = localPrev; await ghPushNow(); }                 // crea el archivo con lo que tengas
-    else if(pedidos.length === 0 && localPrev.length > 0){ pedidos = localPrev; await ghPushNow(); }
+    if(pedidos.length === 0 && localPrev.length > 0){ pedidos = localPrev; await syncPush('pedidos'); } // sube lo que ya tenías cargado
     await actualizarGhEnVault(c);     // guarda el token cifrado
     const pub = await escribirVaultRemoto();  // publica el acceso para otros dispositivos
     await escribirCacheCifrada();
@@ -2095,6 +2309,7 @@ async function conectarGh(){
     else if(pub.reason === 'permiso') toast('Conectado, pero el token no puede escribir en el repo de la app: agregale ese repo');
     else if(pub.reason === 'nopages') toast('Conectado (el acceso compartido solo se publica desde GitHub Pages)');
     else toast('Conectado, pero no se pudo publicar el acceso compartido');
+    verificarPrivacidadRepo();
   } else {
     gh = prev; setSync(ghOk()?'ok':'off');
     $('#gh-estado').textContent = res.reason === 'auth'
@@ -2116,13 +2331,16 @@ async function desbloquear(){
   ocultarAuth();
   render(); setSync('ok');
   if(ghOk()){
-    const res = await ghPull();
-    if(res.ok) render();
-    else if(res.reason === 'auth') toast('Revisá tu token de GitHub');
-    // Pull de ingredientes y recetas
-    await ghPullExtra('materias.json', ghShaIngRef, (arr,sha)=>{ ingredientes=arr; ghShaIngRef.val=sha; escribirCacheIng(); });
-    await ghPullExtra('recetas.json', ghShaRecRef, (arr,sha)=>{ recetas=arr; ghShaRecRef.val=sha; escribirCacheRec(); });
-    await ghPullExtra('productos.json', ghShaProdRef, (arr,sha)=>{ productos=arr; ghShaProdRef.val=sha; escribirCacheProd(); });
+    const res = await syncPull('pedidos');
+    if(!res.ok && res.reason === 'auth') toast('Revisá tu token de GitHub');
+    await syncPull('ingredientes');
+    await syncPull('recetas');
+    await syncPull('productos');
+    await syncPull('caja');
+    render();
+    if(vistaActual==='stock') renderStock();
+    if(vistaActual==='caja') renderCaja();
+    verificarPrivacidadRepo();
   }
   await escribirCacheCifrada();
 }
@@ -2136,6 +2354,7 @@ async function hacerLogin(){
     ingredientes = await leerCacheIng();
     recetas = await leerCacheRec();
     productos = await leerCacheProd();
+    caja = await leerCacheCaja();
     await desbloquear();
   } else { $('#lg-err').textContent = 'Contraseña incorrecta.'; }
 }
@@ -2144,11 +2363,11 @@ async function hacerSetup(){
   const err = $('#su-err');
   if(!cryptoOk){ err.textContent = 'Este navegador necesita HTTPS (funciona en GitHub Pages).'; return; }
   const p1 = $('#su-pass').value, p2 = $('#su-pass2').value;
-  if(p1.length < 8){ err.textContent = 'Usá una contraseña de al menos 8 caracteres (es lo que protege tu acceso).'; return; }
+  if(p1.length < 10){ err.textContent = 'Usá una contraseña de al menos 10 caracteres (es lo que protege tu acceso).'; return; }
   if(p1 !== p2){ err.textContent = 'Las contraseñas no coinciden.'; return; }
   await crearVault(p1, {});           // sin GitHub por ahora: solo contraseña
   await guardarSesion(true);          // queda la sesión iniciada
-  pedidos = [];
+  pedidos = []; ingredientes = []; recetas = []; productos = []; caja = [];
   await escribirCacheCifrada();
   await desbloquear();
   toast('¡Listo! Para usarlo en varios dispositivos, conectá GitHub en el menú ⋯');
@@ -2156,7 +2375,9 @@ async function hacerSetup(){
 
 function cerrarSesion(){
   limpiarSesion();
-  appKey = null; gh = null; ghSha = null; pedidos = [];
+  appKey = null; gh = null;
+  pedidos = []; ingredientes = []; recetas = []; productos = []; caja = [];
+  Object.values(shaRefs).forEach(r=>r.val=null);
   render(); $('#menu').classList.remove('open');
   panelLogin(); mostrarAuth();
 }
@@ -2172,12 +2393,12 @@ function cerrarCp(){ $('#overlayCp').classList.remove('open'); }
 async function cambiarContrasena(){
   const err = $('#cp-err');
   const actual = $('#cp-actual').value, n1 = $('#cp-nueva').value, n2 = $('#cp-nueva2').value;
-  if(n1.length < 8){ err.textContent = 'La nueva debe tener al menos 8 caracteres.'; return; }
+  if(n1.length < 10){ err.textContent = 'La nueva debe tener al menos 10 caracteres.'; return; }
   if(n1 !== n2){ err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
   const vault = vaultRaw(); if(!vault){ err.textContent = 'No hay un acceso configurado.'; return; }
   let conf;
   try{
-    const k = await derivarClave(actual, b64Bytes(vault.salt));
+    const k = await derivarClave(actual, b64Bytes(vault.salt), vault.iter || PBKDF2_ITER_LEGADO);
     conf = await descifrar(k, vault.gh);          // valida la contraseña actual
   }catch(e){ err.textContent = 'La contraseña actual es incorrecta.'; return; }
 
@@ -2186,7 +2407,9 @@ async function cambiarContrasena(){
 
   err.textContent = 'Cambiando…';
   await crearVault(n1, conf);          // nueva sal + nueva clave, re-cifra el acceso
-  await escribirCacheCifrada();        // re-cifra la caché con la nueva clave
+  await Promise.all([                  // re-cifra TODAS las cachés con la nueva clave
+    escribirCacheCifrada(), escribirCacheIng(), escribirCacheRec(), escribirCacheProd(), escribirCacheCaja(),
+  ]);
   await guardarSesion(persist);        // actualiza la sesión recordada
   if(ghOk()){
     const pub = await escribirVaultRemoto();   // publica el acceso con la nueva contraseña
@@ -2201,7 +2424,8 @@ async function reconfigurar(){
     mensaje:'Esto borra la conexión y la contraseña de ESTE dispositivo. Tus pedidos en GitHub no se tocan: los recuperás al volver a conectar. ¿Seguir?',
     ok:'Reconfigurar', peligro:true });
   if(!ok) return;
-  limpiarSesion(); borrarVault(); pedidos = [];
+  limpiarSesion(); borrarVault();
+  pedidos = []; ingredientes = []; recetas = []; productos = []; caja = [];
   panelSetup(); mostrarAuth();
 }
 
@@ -2237,7 +2461,9 @@ function importarJson(file){
       }))) return;
       pedidos = data.map(p => ({ id: p.id||uid(), creado: p.creado||hoyISO(),
         cliente:p.cliente||'', telefono:p.telefono||'', detalle:p.detalle||'', monto:Number(p.monto)||0,
-        entrega:p.entrega||'', nota:p.nota||'', estado: p.estado==='cobrado'?'cobrado':'pendiente' }));
+        entrega:p.entrega||'', nota:p.nota||'', estado: p.estado==='cobrado'?'cobrado':'pendiente',
+        items: Array.isArray(p.items)?p.items:[], cobros: Array.isArray(p.cobros)?p.cobros:[],
+        stockAplicado: p.stockAplicado||{}, autoMonto: !!p.autoMonto }));
       await guardar(); render(); toast('Respaldo importado ✓');
     }catch(e){ toast('El archivo no es un respaldo válido'); }
   };
@@ -2250,8 +2476,6 @@ $('#cancelBtn').addEventListener('click', cerrarModal);
 $('#saveBtn').addEventListener('click', guardarPedido);
 $('#overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') cerrarModal(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') { cerrarModal(); cerrarReporte(); cerrarGh(); cerrarCp(); cerrarConfirm(false); $('#menu').classList.remove('open'); } });
-
-$('#seg').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setEstadoForm(b.dataset.e); });
 
 $('#search').addEventListener('input', e=>{ busqueda = e.target.value; renderList(); });
 
@@ -2277,7 +2501,7 @@ $('#list').addEventListener('click', e=>{
   else if(b.dataset.act==='del') borrar(id);
   else if(b.dataset.act==='parcial') abrirParcial(id);
   else if(b.dataset.act==='items') abrirItems(id);
-  else if(b.dataset.act==='quitarcobro') quitarCobro(id, Number(b.dataset.ci));
+  else if(b.dataset.act==='quitarcobro') quitarCobro(id, b.dataset.ci);
 });
 
 // ====================== NAVEGACIÓN POR VISTAS ======================
@@ -2290,6 +2514,7 @@ function cambiarVista(v){
   if(v==='recetas') renderRecetas();
   if(v==='productos') renderProductos();
   if(v==='stock') renderStock();
+  if(v==='caja') renderCaja();
 }
 document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>cambiarVista(t.dataset.view)));
 
@@ -2691,6 +2916,184 @@ $('#stock-list').addEventListener('change', async e=>{
 $('#cat-stock-toolbar').addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(!c)return;filtroStockCat=c.dataset.c;renderStock();});
 $('#search-stock').addEventListener('input',e=>{busqStock=e.target.value;renderStock();});
 
+// ====================== CAJA (debe y haber: efectivo vs. digital) ======================
+// Cada movimiento: { id, fecha, tipo:'ingreso'|'gasto'|'ajuste', medio:'efectivo'|'digital',
+//   monto, concepto, nota, pedidoId?, cobroId?, auto, origen:'pedido'|'manual'|'cierre', creado }
+// Los ingresos de pedidos se generan solos desde el cobro (ver guardarParcial). Acá solo
+// se arma la vista y se cargan gastos/ajustes a mano.
+
+function valorMovimiento(m){
+  if(m.tipo==='gasto') return -Math.abs(m.monto);
+  if(m.tipo==='ajuste') return m.monto;   // ya viene con signo (+ falta de más, − falta)
+  return Math.abs(m.monto);               // ingreso
+}
+function saldosCaja(){
+  let efectivo=0, digital=0;
+  caja.forEach(m=>{ const v=valorMovimiento(m); if(m.medio==='efectivo') efectivo+=v; else digital+=v; });
+  return { efectivo, digital, total: efectivo+digital };
+}
+function renderCajaStats(){
+  const {efectivo, digital, total} = saldosCaja();
+  $('#caja-stats').innerHTML = `
+    <div class="stat">
+      <div class="label">💵 Efectivo</div>
+      <div class="num">${money(efectivo)}</div>
+    </div>
+    <div class="stat">
+      <div class="label">💳 Digital</div>
+      <div class="num">${money(digital)}</div>
+    </div>
+    <div class="stat por-cobrar">
+      <div class="label">Total en Caja</div>
+      <div class="num">${money(total)}</div>
+    </div>`;
+}
+function movimientosVisibles(){
+  const q = busqCaja.trim().toLowerCase();
+  return caja
+    .filter(m => filtroCajaTipo==='todos' ? true : m.tipo===filtroCajaTipo)
+    .filter(m => filtroCajaMedio==='todos' ? true : m.medio===filtroCajaMedio)
+    .filter(m => !q || (m.concepto||'').toLowerCase().includes(q) || (m.nota||'').toLowerCase().includes(q))
+    .sort((a,b)=>{
+      const fa=a.fecha||'', fb=b.fecha||'';
+      if(fa!==fb) return fb<fa?-1:1;
+      return (b.creado||'').localeCompare(a.creado||'');
+    });
+}
+function movCardHTML(m){
+  const esGasto = m.tipo==='gasto';
+  const esAjuste = m.tipo==='ajuste';
+  const negativo = esGasto || (esAjuste && m.monto<0);
+  const signo = negativo ? '−' : '+';
+  const color = negativo ? 'var(--danger)' : 'var(--mint)';
+  const medioTxt = m.medio==='efectivo' ? '💵 Efectivo' : '💳 Digital';
+  const tipoTxt = esGasto ? 'Gasto' : esAjuste ? 'Ajuste' : 'Ingreso';
+  const bloqueado = m.origen==='cierre';
+  return `<div class="card">
+    <div class="card-row">
+      <div>
+        <div class="cliente">${esc(m.concepto||tipoTxt)}</div>
+        <div class="detalle">${tipoTxt} · ${medioTxt}${m.nota?' · '+esc(m.nota):''}</div>
+      </div>
+      <div class="monto" style="color:${color}">${signo}${money(Math.abs(m.monto))}</div>
+    </div>
+    <div class="meta">
+      <span class="fecha">🗓 ${fechaCorta(m.fecha)}</span>
+      ${bloqueado ? `<span class="fecha">🔒 Archivado con un cierre de mes</span>` : ''}
+    </div>
+    ${!bloqueado ? `<div class="card-actions"><button class="act del" data-mact="del" data-id="${m.id}">Borrar</button></div>` : ''}
+  </div>`;
+}
+function renderCajaList(){
+  const items = movimientosVisibles();
+  const list = $('#caja-list');
+  if(caja.length===0){
+    list.innerHTML = `<div class="empty"><div class="emoji">💰</div><h3>Todavía no hay movimientos</h3><p>Los cobros de pedidos van a aparecer acá solos. También podés cargar gastos y ajustes a mano.</p></div>`;
+    return;
+  }
+  if(items.length===0){
+    list.innerHTML = `<div class="empty"><div class="emoji">🔍</div><h3>Sin resultados</h3><p>Probá con otro filtro o búsqueda.</p></div>`;
+    return;
+  }
+  const grupos = {};
+  items.forEach(m=>{ const k=m.fecha||'__sin__'; (grupos[k]=grupos[k]||[]).push(m); });
+  const dias = Object.keys(grupos).sort((a,b)=> a<b?1:a>b?-1:0);
+  list.innerHTML = dias.map(dia=>{
+    const arr = grupos[dia];
+    const neto = arr.reduce((s,m)=>s+valorMovimiento(m),0);
+    return `<div class="day">
+      <div class="day-head">
+        <span class="day-label">${dia==='__sin__'?'Sin fecha':etiquetaDia(dia)}</span>
+        <span class="day-sum">${neto>=0?'+':''}${money(neto)}</span>
+      </div>
+      ${arr.map(movCardHTML).join('')}
+    </div>`;
+  }).join('');
+}
+function renderCaja(){ renderCajaStats(); renderCajaList(); }
+
+async function borrarMovimientoCaja(id){
+  const m = caja.find(x=>x.id===id); if(!m) return;
+  if(m.origen==='cierre'){ toast('Quedó archivado con el cierre de un mes — no se puede borrar suelto.'); return; }
+  if(m.origen==='pedido'){ toast('Este ingreso viene de un pedido — quitalo desde el cobro parcial del pedido para que quede todo prolijo.'); return; }
+  const ok = await confirmar({ titulo:'Borrar movimiento', mensaje:`¿Borrar "${m.concepto}" (${money(m.monto)})?`, ok:'Borrar', peligro:true });
+  if(!ok) return;
+  caja = caja.filter(x=>x.id!==id);
+  await guardarCaja(); renderCaja(); toast('Movimiento borrado');
+}
+
+// ---- Nuevo gasto ----
+let medioGasto = 'efectivo';
+function abrirGasto(){
+  $('#f-gasto-concepto').value=''; $('#f-gasto-monto').value=''; $('#f-gasto-fecha').value=hoyISO(); $('#f-gasto-nota').value='';
+  medioGasto = 'efectivo';
+  document.querySelectorAll('#seg-gasto-medio button').forEach(b=>b.className = b.dataset.m==='efectivo'?'on-ef':'');
+  $('#err-gasto-concepto').style.display='none'; $('#err-gasto-monto').style.display='none';
+  $('#overlayGasto').classList.add('open');
+  setTimeout(()=>$('#f-gasto-concepto').focus(),50);
+}
+function cerrarGasto(){ $('#overlayGasto').classList.remove('open'); }
+async function guardarGasto(){
+  const concepto = $('#f-gasto-concepto').value.trim();
+  const monto = parseFloat($('#f-gasto-monto').value);
+  let ok = true;
+  if(!concepto){ $('#err-gasto-concepto').style.display='block'; ok=false; } else $('#err-gasto-concepto').style.display='none';
+  if(!monto || isNaN(monto) || monto<=0){ $('#err-gasto-monto').style.display='block'; ok=false; } else $('#err-gasto-monto').style.display='none';
+  if(!ok) return;
+  caja.push({
+    id: uid(), fecha: $('#f-gasto-fecha').value || hoyISO(), tipo:'gasto', medio: medioGasto, monto,
+    concepto, nota: $('#f-gasto-nota').value.trim(), origen:'manual', auto:false, creado: new Date().toISOString(),
+  });
+  await guardarCaja(); cerrarGasto(); renderCaja(); toast('Gasto registrado');
+}
+
+// ---- Ajuste por conteo real ----
+let medioAjuste = 'efectivo';
+function abrirAjuste(){
+  $('#f-ajuste-monto').value=''; $('#f-ajuste-nota').value='';
+  medioAjuste = 'efectivo';
+  document.querySelectorAll('#seg-ajuste-medio button').forEach(b=>b.className = b.dataset.m==='efectivo'?'on-ef':'');
+  $('#err-ajuste-monto').style.display='none';
+  $('#overlayAjuste').classList.add('open');
+  setTimeout(()=>$('#f-ajuste-monto').focus(),50);
+}
+function cerrarAjuste(){ $('#overlayAjuste').classList.remove('open'); }
+async function guardarAjuste(){
+  const monto = parseFloat($('#f-ajuste-monto').value);
+  if(!monto || isNaN(monto) || monto===0){ $('#err-ajuste-monto').style.display='block'; return; }
+  $('#err-ajuste-monto').style.display='none';
+  const nota = $('#f-ajuste-nota').value.trim() || 'Ajuste por conteo real';
+  caja.push({
+    id: uid(), fecha: hoyISO(), tipo:'ajuste', medio: medioAjuste, monto,
+    concepto: 'Ajuste de caja', nota, origen:'manual', auto:false, creado: new Date().toISOString(),
+  });
+  await guardarCaja(); cerrarAjuste(); renderCaja(); toast('Ajuste registrado');
+}
+
+// ---- Cerrar mes: archiva (borra) los pedidos pero conserva el dinero ya cobrado en Caja ----
+async function cerrarResumenMes(){
+  const clave = $('#f-mes').value;
+  const delMes = pedidos.filter(p => (p.creado||'').slice(0,7) === clave);
+  if(!delMes.length){ toast('No hay pedidos en ese mes'); return; }
+  const pendientes = delMes.filter(p=>p.estado!=='cobrado' && restantePedido(p)>0);
+  let mensaje = `Se van a archivar ${delMes.length} pedido(s) de ${mesLabel(clave)}. El dinero que ya cobraste queda guardado en Caja aunque borres los pedidos.`;
+  if(pendientes.length){
+    const totalPend = pendientes.reduce((s,p)=>s+restantePedido(p),0);
+    mensaje += ` Ojo: ${pendientes.length} de esos pedidos todavía tiene saldo pendiente de cobro (${money(totalPend)} en total) — ese dinero no se va a registrar porque nunca se cobró.`;
+  }
+  const ok = await confirmar({ titulo:'Cerrar mes y archivar pedidos', mensaje, ok:'Archivar', peligro:true });
+  if(!ok) return;
+  const ids = new Set(delMes.map(p=>p.id));
+  // Bloqueamos los movimientos de estos pedidos para que sobrevivan al borrado
+  caja.forEach(m=>{ if(m.pedidoId && ids.has(m.pedidoId)) m.origen = 'cierre'; });
+  for(const p of delMes){ await revertirStock(p); }
+  pedidos = pedidos.filter(p=>!ids.has(p.id));
+  await guardar(); await guardarCaja();
+  cerrarReporte(); render(); toast(`${delMes.length} pedido(s) archivado(s) — el dinero cobrado quedó en Caja`);
+  if(vistaActual==='stock') renderStock();
+  if(vistaActual==='caja') renderCaja();
+}
+
 // ====================== RENDER RECETAS ======================
 let busqRec='',filtroRecCat='todos';
 const multState={};
@@ -3068,7 +3471,13 @@ $('#ghBtn').addEventListener('click', ()=>{ abrirGh(); $('#menu').classList.remo
 $('#ghPullBtn').addEventListener('click', async ()=>{
   $('#menu').classList.remove('open');
   if(!ghOk()){ toast('Primero conectá GitHub'); return; }
-  const r = await ghPull(); render(); toast(r.ok ? 'Datos actualizados ✓' : 'No se pudieron traer los datos');
+  const resultados = await Promise.all([
+    syncPull('pedidos'), syncPull('ingredientes'), syncPull('recetas'), syncPull('productos'), syncPull('caja'),
+  ]);
+  render();
+  if(vistaActual==='stock') renderStock();
+  if(vistaActual==='caja') renderCaja();
+  toast(resultados.every(r=>r.ok) ? 'Datos actualizados ✓' : 'No se pudieron traer todos los datos');
 });
 $('#cancelGh').addEventListener('click', cerrarGh);
 $('#conectarGh').addEventListener('click', conectarGh);
@@ -3092,7 +3501,44 @@ $('#lg-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') hacerLogin();
 $('#su-pass2').addEventListener('keydown', e=>{ if(e.key==='Enter') hacerSetup(); });
 $('#cancelMes').addEventListener('click', cerrarReporte);
 $('#genMes').addEventListener('click', generarReporte);
+$('#cerrarMesBtn').addEventListener('click', cerrarResumenMes);
 $('#overlayMes').addEventListener('click', e=>{ if(e.target.id==='overlayMes') cerrarReporte(); });
+// ---- Caja: gastos, ajustes y filtros ----
+$('#search-caja').addEventListener('input', e=>{ busqCaja = e.target.value; renderCajaList(); });
+$('#filters-caja').addEventListener('click', e=>{
+  const c = e.target.closest('.chip'); if(!c) return;
+  filtroCajaTipo = c.dataset.f;
+  document.querySelectorAll('#filters-caja .chip').forEach(x=>x.classList.toggle('active', x===c));
+  renderCajaList();
+});
+$('#groupByMedioCaja').addEventListener('click', e=>{
+  const b = e.target.closest('.gb-btn'); if(!b) return;
+  filtroCajaMedio = b.dataset.g;
+  document.querySelectorAll('#groupByMedioCaja .gb-btn').forEach(x=>x.classList.toggle('active', x===b));
+  renderCajaList();
+});
+$('#caja-list').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-mact]'); if(!b) return;
+  if(b.dataset.mact==='del') await borrarMovimientoCaja(b.dataset.id);
+});
+$('#newGastoBtn').addEventListener('click', abrirGasto);
+$('#cancelGasto').addEventListener('click', cerrarGasto);
+$('#saveGasto').addEventListener('click', guardarGasto);
+$('#overlayGasto').addEventListener('click', e=>{ if(e.target.id==='overlayGasto') cerrarGasto(); });
+$('#seg-gasto-medio').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  medioGasto = b.dataset.m;
+  document.querySelectorAll('#seg-gasto-medio button').forEach(x=>x.className = x===b ? (medioGasto==='efectivo'?'on-ef':'on-dig') : '');
+});
+$('#newAjusteBtn').addEventListener('click', abrirAjuste);
+$('#cancelAjuste').addEventListener('click', cerrarAjuste);
+$('#saveAjuste').addEventListener('click', guardarAjuste);
+$('#overlayAjuste').addEventListener('click', e=>{ if(e.target.id==='overlayAjuste') cerrarAjuste(); });
+$('#seg-ajuste-medio').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  medioAjuste = b.dataset.m;
+  document.querySelectorAll('#seg-ajuste-medio button').forEach(x=>x.className = x===b ? (medioAjuste==='efectivo'?'on-ef':'on-dig') : '');
+});
 $('#cf-ok').addEventListener('click', ()=>cerrarConfirm(true));
 $('#cf-cancel').addEventListener('click', ()=>cerrarConfirm(false));
 $('#overlayConfirm').addEventListener('click', e=>{ if(e.target.id==='overlayConfirm') cerrarConfirm(false); });
@@ -3122,6 +3568,7 @@ $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJ
     ingredientes = await leerCacheIng();
     recetas = await leerCacheRec();
     productos = await leerCacheProd();
+    caja = await leerCacheCaja();
     await desbloquear();
     return;
   }
@@ -3129,9 +3576,25 @@ $('#importFile').addEventListener('change', e=>{ if(e.target.files[0]) importarJ
   mostrarAuth();
 })();
 
-// Al volver a la app en otro dispositivo, traemos los últimos cambios (si no hay nada pendiente de subir)
+// Bloqueo automático por inactividad: si el celular quedó desbloqueado con la app
+// abierta y nadie la usa por un rato, al volver pide la contraseña de nuevo en vez
+// de seguir mostrando pedidos y plata a cualquiera que agarre el teléfono.
+const UMBRAL_BLOQUEO_MS = 10 * 60 * 1000; // 10 minutos en segundo plano
+let horaOculto = null;
 document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden && appKey && ghOk() && !pushPend){ ghPull().then(render); }
+  if(document.hidden){ horaOculto = Date.now(); return; }
+  // La pantalla volvió a estar visible
+  if(appKey && horaOculto && (Date.now() - horaOculto) > UMBRAL_BLOQUEO_MS){
+    horaOculto = null;
+    cerrarSesion();
+    toast('Se cerró la sesión por inactividad — volvé a ingresar tu contraseña');
+    return;
+  }
+  horaOculto = null;
+  if(appKey && ghOk()){
+    Promise.all([syncPull('pedidos'), syncPull('ingredientes'), syncPull('recetas'), syncPull('productos'), syncPull('caja')])
+      .then(()=>{ render(); if(vistaActual==='stock') renderStock(); if(vistaActual==='caja') renderCaja(); });
+  }
 });
 </script>
 </body>
